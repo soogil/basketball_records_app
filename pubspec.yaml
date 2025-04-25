@@ -1,0 +1,35 @@
+name: boilerplate
+description: "boilerplate"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  gsheets: ^0.5.0
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  dio: ^5.8.0+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  freezed: ^3.0.4
+  freezed_annotation: ^3.0.0
+  riverpod_generator: ^2.6.5
+  build_runner: ^2.4.14
+  json_serializable: ^6.9.3
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    - assets/credentials.json
+
