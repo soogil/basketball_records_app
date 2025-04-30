@@ -32,39 +32,24 @@ class GoogleSheetsApi {
   final GSheets _gSheets;
   final String _spreadsheetId;
 
-  Future<Spreadsheet> fetchSheetsData() async {
-    final result = await _gSheets.spreadsheet(_spreadsheetId);
+  Future<List<List<String>>> fetchSheetsData() async {
+    final spreadsheet = await _gSheets.spreadsheet(_spreadsheetId);
+    final sheets = spreadsheet.sheets;
+    if (sheets.isEmpty) {
+      throw Exception('No sheets found');
+    }
+    final firstSheet = sheets.first;
+    final rows = await firstSheet.values.allRows();
 
-    for (var sheet in result.sheets) {
-      debugPrint('\nSheet: ${sheet.title}');
-
-      // 시트의 전체 행 수를 가져옵니다
-      final rowCount = await sheet.rowCount;
-      debugPrint('Total rows: $rowCount');
-
-      // 값이 있는 행만 가져오기 위해 각 행을 확인
-      for (int i = 1; i <= rowCount; i++) {
-        final row = await sheet.cells.row(i);
-        // 행이 비어있지 않은 경우에만 출력
-        if (row.isNotEmpty && row.any((cell) => cell.toString().trim().isNotEmpty)) {
-          debugPrint('Row $i: $row');
-        }
+    int startRowIndex = 0;
+    for (int i = 0; i < rows.length; i++) {
+      if (rows[i].any((cell) => cell.trim().isNotEmpty)) {
+        startRowIndex = i;
+        break;
       }
     }
 
-    // final result = await _gSheets.spreadsheet(_spreadsheetId);
-    //
-    // // 특정 시트에 접근
-    // final targetSheet = result.worksheetById(950839361);
-    // if (targetSheet == null) {
-    //   throw Exception('Target sheet not found');
-    // }
-    //
-    // // 시트 데이터 읽기
-    // final values = await targetSheet.values.allRows();
-    // debugPrint('Sheet data: $values');
-
-    return result;
+    return rows.sublist(startRowIndex);
   }
 
   // // 수식 추가/수정 메서드
