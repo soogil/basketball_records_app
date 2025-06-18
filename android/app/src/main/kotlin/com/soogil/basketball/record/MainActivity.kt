@@ -1,4 +1,4 @@
-package com.soogil.boilerplate
+package com.soogil.basketball.record
 
 import io.flutter.embedding.android.FlutterActivity
 

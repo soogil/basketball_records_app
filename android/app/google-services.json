@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "557524235019",
+    "project_id": "basketball-record-82584",
+    "storage_bucket": "basketball-record-82584.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:557524235019:android:5fc1668f43badf204e680e",
+        "android_client_info": {
+          "package_name": "com.soogil.basketball.record"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbLKIxbJCVcb0KlLKSByjzjVJKQhgtz9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

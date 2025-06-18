@@ -1,7 +1,8 @@
+import 'package:basketball_records/data/model/player_model.dart';
+import 'package:basketball_records/presentation/viewmodel/main_page_view_model.dart';
 import 'package:data_table_2/data_table_2.dart' show ColumnSize, DataColumn2, DataRow2, DataTable2;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:boilerplate/presentation/viewmodel/main_page_view_model.dart';
 
 
 class MainPage extends ConsumerWidget {
@@ -14,7 +15,7 @@ class MainPage extends ConsumerWidget {
       body: _body(ref),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () =>
-      //       ref.read(mainPageViewModelProvider.notifier).fetchSheetData(),
+      //       ref.read(mainPageViewModelProvider.notifier).uploadPlayers(),
       //   child: const Icon(Icons.refresh),
       // ),
     );
@@ -32,11 +33,69 @@ class MainPage extends ConsumerWidget {
 
     return mainViewModel.when(
       data: (data) {
-        debugPrint(data.toString());
-        return SheetDataTable(sheetData: data);
+        return _playerList(data.players);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('에러 발생: $error')),
+    );
+  }
+
+  Widget _playerList(List<PlayerModel> players) {
+    return Consumer(
+        builder: (context, ref, __) {
+          final viewModel = ref.watch(mainPageViewModelProvider.notifier);
+          final mainState = ref.watch(mainPageViewModelProvider);
+
+          return DataTable2(
+            sortColumnIndex: viewModel.sortColumn?.index,
+            sortAscending: viewModel.sortAscending,
+            columnSpacing: 0,
+            showCheckboxColumn: false,
+            columns: PlayerColumn.values.map((col) {
+              final isSorted = viewModel.sortColumn == col;
+              return DataColumn(
+                label: InkWell(
+                  onTap: () => viewModel.sortPlayers(col),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text(col.label),
+                        if (isSorted)
+                          Row(
+                            children: [
+                              const SizedBox(width: 5),
+                              Icon(
+                                viewModel.sortAscending
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward,
+                                size: 20,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            rows: mainState.maybeWhen(
+              data: (state) =>
+                  state.players.map((player) =>
+                      DataRow(
+                        onSelectChanged: (selected) {
+
+                        },
+                        cells: PlayerColumn.values
+                            .map((col) => DataCell(Center(
+                            child: Text(player.valueByColumn(col))))).toList(),
+                      )).toList(),
+              orElse: () => [],
+            ),
+          );
+        }
     );
   }
 }
