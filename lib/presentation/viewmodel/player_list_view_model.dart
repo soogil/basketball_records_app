@@ -3,43 +3,54 @@ import 'package:basketball_records/data/repository/fire_store_repository_impl.da
 import 'package:basketball_records/domain/repository/fire_store_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'main_page_view_model.g.dart';
+part 'player_list_view_model.g.dart';
 
 
-class MainState {
-  MainState({
+class PlayerListState {
+  PlayerListState({
     required this.players,
+    this.hoveredId,
   });
 
   final List<PlayerModel> players;
+  final String? hoveredId;
 }
 
 @riverpod
-class MainPageViewModel extends _$MainPageViewModel {
+class PlayerListViewModel extends _$PlayerListViewModel {
   late final FireStoreRepository _fireStoreRepository = ref.read(fireStoreImpl);
 
-  PlayerColumn? _sortColumn;
-  bool _sortAscending = true;
+  PlayerColumn? _sortColumn = PlayerColumn.totalScore;
+  bool _sortAscending = false;
 
   PlayerColumn? get sortColumn => _sortColumn;
   bool get sortAscending => _sortAscending;
 
+
   @override
-  Future<MainState> build() async {
+  Future<PlayerListState> build() async {
     final List<PlayerModel> players = await _fireStoreRepository.getPlayers();
 
-    return MainState(players: players);
+    final sorted = sortPlayers(players, PlayerColumn.totalScore, ascending: false);
+
+    return PlayerListState(players: sorted);
   }
 
-  /// 정렬 함수
-  void sortPlayers(PlayerColumn column) {
-    final List<PlayerModel> players = [...state.value!.players]; // 깊은 복사
+  Future uploadPlayers() async {
+    await _fireStoreRepository.uploadPlayers();
+  }
+
+  List<PlayerModel> sortPlayers(List<PlayerModel> input, PlayerColumn column, {bool? ascending}) {
+    final players = [...input];
+
+    // 이름이면 오름차순, 나머지는 내림차순이 기본
+    bool defaultAscending = (column == PlayerColumn.name);
 
     if (_sortColumn == column) {
-      _sortAscending = !_sortAscending;
+      _sortAscending = ascending ?? !_sortAscending;
     } else {
       _sortColumn = column;
-      _sortAscending = true;
+      _sortAscending = ascending ?? defaultAscending;
     }
 
     players.sort((a, b) {
@@ -67,7 +78,17 @@ class MainPageViewModel extends _$MainPageViewModel {
       return _sortAscending ? compare : -compare;
     });
 
-    // 상태를 갱신합니다.
-    state = AsyncData(MainState(players: players));
+    return players;
+  }
+
+  void sortPlayersOnTable(PlayerColumn column) {
+    final sorted = sortPlayers(state.value!.players, column);
+    state = AsyncData(PlayerListState(players: sorted));
+  }
+
+  void setHover({String? id}) {
+    state = AsyncData(
+      PlayerListState(players: state.value!.players, hoveredId: id),
+    );
   }
 }

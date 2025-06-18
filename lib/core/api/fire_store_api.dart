@@ -18,7 +18,7 @@ class FireStoreApi {
     final CollectionReference playersRef = FirebaseFirestore.instance.collection('players');
 
     for (var player in players) {
-      await playersRef.doc(player['name']).set(player);
+      await playersRef.add(player);
     }
   }
 
@@ -28,7 +28,10 @@ class FireStoreApi {
         .get();
 
     return querySnapshot.docs
-        .map((doc) => PlayerModel.fromFireStore(doc.id, doc.data()))
+        .map((doc) {
+          print(doc.id);
+          return PlayerModel.fromFireStore(doc.id, doc.data());
+    })
         .toList();
   }
 }

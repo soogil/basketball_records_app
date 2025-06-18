@@ -74,9 +74,9 @@ extension PlayerColumnExtension on PlayerColumn {
     switch (this) {
       case PlayerColumn.name: return '이름';
       case PlayerColumn.wins: return '승점';
-      case PlayerColumn.attendanceScore: return '출석점수';
+      case PlayerColumn.attendanceScore: return '합계';
       case PlayerColumn.totalScore: return '총점';
-      case PlayerColumn.appearances: return '출석';
+      case PlayerColumn.appearances: return '출석 점수';
       case PlayerColumn.winRate: return '승률';
     }
   }
@@ -84,9 +84,9 @@ extension PlayerColumnExtension on PlayerColumn {
 
 enum PlayerColumn {
   name,
-  wins,
-  attendanceScore,
   totalScore,
   appearances,
+  wins,
   winRate,
+  attendanceScore,
 }
