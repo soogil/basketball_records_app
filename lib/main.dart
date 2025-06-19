@@ -1,10 +1,10 @@
+import 'package:basketball_records/core/router/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemChrome, SystemUiMode, SystemUiOverlay;
+import 'package:flutter/services.dart' show SystemChrome, SystemUiMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'firebase_options.dart';
-import 'presentation/view/main_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,19 +19,21 @@ void main() async {
   );
 }
 
-class BasketballRecordsApp extends StatelessWidget {
+class BasketballRecordsApp extends ConsumerWidget {
   const BasketballRecordsApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+      routerConfig: router,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainPage(),
     );
   }
 }

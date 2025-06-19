@@ -1,5 +1,7 @@
+import 'package:basketball_records/core/theme/br_color.dart';
 import 'package:basketball_records/data/model/player_model.dart';
 import 'package:basketball_records/presentation/viewmodel/player_list_view_model.dart';
+import 'package:basketball_records/presentation/widget/player_dialog.dart';
 // import 'package:data_table_2/data_table_2.dart' show ColumnSize, DataColumn2, DataRow2, DataTable2;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,22 +14,60 @@ class MainPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      // appBar: _appBar(),
+      appBar: _appBar(context, ref),
       body: _body(ref),
       // floatingActionButton: FloatingActionButton(
-      //   onPressed: () =>
-      //       ref.read(playerListViewModelProvider.notifier).uploadPlayers(),
+      //   onPressed: () {
+      //     // ref.read(playerListViewModelProvider.notifier).uploadPlayers();
+      //
+      //
+      //   },
       //   child: const Icon(Icons.refresh),
       // ),
     );
   }
 
-  // PreferredSizeWidget _appBar() {
-  //   return AppBar(
-  //     backgroundColor: Colors.red,
-  //     title: const Text('Basketball Records'),
-  //   );
-  // }
+  PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) {
+    return AppBar(
+      toolbarHeight: 50,
+      backgroundColor: BRColors.greenB2,
+      // title: const Text('Basketball Records'),
+      actions: [
+        OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.black)
+            ),
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (_) {
+                    final players = ref.read(playerListViewModelProvider).value?.players ?? [];
+                    return Dialog(
+                      backgroundColor: BRColors.white,
+                      child: PlayerDialog(
+                        allPlayers: players,
+                        onSave: (List<TeamInput> teams) async {
+                          // 저장 콜백 - 여기에 Firestore 저장 로직
+                          // 예: await saveTeamRecordsToFirestore(teams);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
+                  }
+              );
+            },
+            child: Text(
+              '기록 추가',
+              style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black
+              ),
+            )
+        ),
+        const SizedBox(width: 50,),
+      ],
+    );
+  }
 
   Widget _body(WidgetRef ref) {
     final mainViewModel = ref.watch(playerListViewModelProvider);
@@ -71,7 +111,7 @@ class MainPage extends ConsumerWidget {
         return Expanded(
           flex: 1,
           child: Container(
-            color: Color(0xFF89A8B2),
+            color: BRColors.greenCf,
             height: 50,
             child: InkWell(
               onTap: () => viewModel.sortPlayersOnTable(col),
@@ -109,8 +149,10 @@ class MainPage extends ConsumerWidget {
     return ListTile(
       contentPadding: EdgeInsets.all(0),
         minTileHeight: 50,
-        onTap: () {},
-        tileColor: isEven ? Color(0xFFF1F0E8) : Color(0xFFE5E1DA),
+        onTap: () {
+
+        },
+        tileColor: isEven ? BRColors.greyDa : BRColors.whiteE8,
         title: Row(
             mainAxisSize: MainAxisSize.max,
             children: PlayerColumn.values

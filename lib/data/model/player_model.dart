@@ -56,15 +56,15 @@ extension PlayerModelPresentation on PlayerModel {
       case PlayerColumn.name:
         return name;
       case PlayerColumn.wins:
-        return wins.toString();
+        return '$wins점';
       case PlayerColumn.attendanceScore:
-        return attendanceScore.toString();
+        return '$attendanceScore점';
       case PlayerColumn.totalScore:
-        return totalScore.toString();
+        return '$totalScore점';
       case PlayerColumn.appearances:
-        return appearances.toString();
+        return '$appearances점';
       case PlayerColumn.winRate:
-        return '${(winRate * 100).toStringAsFixed(1)}%';
+        return '${(winRate * 100).toStringAsFixed(0)}%';
     }
   }
 }

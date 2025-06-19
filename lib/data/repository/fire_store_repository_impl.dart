@@ -1,5 +1,6 @@
 import 'package:basketball_records/core/api/fire_store_api.dart';
 import 'package:basketball_records/data/model/player_model.dart';
+import 'package:basketball_records/data/model/record_model.dart';
 import 'package:basketball_records/domain/repository/fire_store_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,6 +22,11 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
   @override
   Future<List<PlayerModel>> getPlayers() async {
     return await _fireStoreApi.getPlayers();
+  }
+
+  @override
+  Future<List<RecordModel>> getPlayerRecords(String playerId) async {
+    return await _fireStoreApi.getPlayerRecords(playerId);
   }
 }
 
