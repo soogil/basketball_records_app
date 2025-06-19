@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecordModel {
   String get date;
-  bool get attendance;
+  int get attendance;
   int get score;
   int get win;
   int get games;
@@ -58,7 +58,7 @@ abstract mixin class $RecordModelCopyWith<$Res> {
           RecordModel value, $Res Function(RecordModel) _then) =
       _$RecordModelCopyWithImpl;
   @useResult
-  $Res call({String date, bool attendance, int score, int win, int games});
+  $Res call({String date, int attendance, int score, int win, int games});
 }
 
 /// @nodoc
@@ -87,7 +87,7 @@ class _$RecordModelCopyWithImpl<$Res> implements $RecordModelCopyWith<$Res> {
       attendance: null == attendance
           ? _self.attendance
           : attendance // ignore: cast_nullable_to_non_nullable
-              as bool,
+              as int,
       score: null == score
           ? _self.score
           : score // ignore: cast_nullable_to_non_nullable

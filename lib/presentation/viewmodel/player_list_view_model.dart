@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'player_list_view_model.g.dart';
 
-
 class PlayerListState {
   PlayerListState({
     required this.players,

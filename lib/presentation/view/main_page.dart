@@ -1,3 +1,4 @@
+import 'package:basketball_records/core/router/app_pages.dart';
 import 'package:basketball_records/core/theme/br_color.dart';
 import 'package:basketball_records/data/model/player_model.dart';
 import 'package:basketball_records/presentation/viewmodel/player_list_view_model.dart';
@@ -6,6 +7,7 @@ import 'package:basketball_records/presentation/widget/player_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:go_router/go_router.dart';
 
 
 class MainPage extends ConsumerWidget {
@@ -18,9 +20,7 @@ class MainPage extends ConsumerWidget {
       body: _body(ref),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
-      //     // ref.read(playerListViewModelProvider.notifier).uploadPlayers();
-      //
-      //
+      //     ref.read(playerListViewModelProvider.notifier).uploadPlayers();
       //   },
       //   child: const Icon(Icons.refresh),
       // ),
@@ -29,9 +29,16 @@ class MainPage extends ConsumerWidget {
 
   PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) {
     return AppBar(
-      toolbarHeight: 50,
+      toolbarHeight: 70,
       backgroundColor: BRColors.greenB2,
-      // title: const Text('Basketball Records'),
+      centerTitle: true,
+      title: const Text(
+        '이기스 포인트',
+        style: TextStyle(
+          fontSize: 25,
+          color: BRColors.white
+        ),
+      ),
       actions: [
         OutlinedButton(
             style: OutlinedButton.styleFrom(
@@ -43,7 +50,7 @@ class MainPage extends ConsumerWidget {
                   builder: (_) {
                     final players = ref.read(playerListViewModelProvider).value?.players ?? [];
                     return Dialog(
-                      backgroundColor: BRColors.white,
+                      backgroundColor: BRColors.whiteE8,
                       child: PlayerDialog(
                         allPlayers: players,
                         onSave: (List<TeamInput> teams) async {
@@ -149,9 +156,10 @@ class MainPage extends ConsumerWidget {
     return ListTile(
       contentPadding: EdgeInsets.all(0),
         minTileHeight: 50,
-        onTap: () {
-
-        },
+        onTap: () => context.pushNamed(AppPage.playerDetail.name, extra: {
+          'playerId': player.id,
+          'playerName': player.name,
+        }),
         tileColor: isEven ? BRColors.greyDa : BRColors.whiteE8,
         title: Row(
             mainAxisSize: MainAxisSize.max,

@@ -8,5 +8,6 @@ abstract class BRColors {
   static const Color greyDa = Color(0xFFE5E1DA);
   static const Color whiteE8 = Color(0xFFF1F0E8);
   static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
   static const Color transparent = Color(0x00000000);
 }

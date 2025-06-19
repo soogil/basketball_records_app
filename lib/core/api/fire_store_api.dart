@@ -23,42 +23,39 @@ class FireStoreApi {
     }
   }
 
-  Future<List<PlayerModel>> getPlayers() async {
+  Future<void> uploadPlayersRecords() async {
+    final String jsonString = await rootBundle.loadString('assets/player_season_records.json');
+    final CollectionReference playersRef = FirebaseFirestore
+        .instance
+        .collection('playerRecords');
+
+    final Map<String, dynamic> data = json.decode(jsonString);
+    for (final playerId in data.keys) {
+      final List<dynamic> records = data[playerId];
+      await playersRef.doc(playerId).set({"records": records});
+    }
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getPlayers() async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('players')
         .get();
 
-    return querySnapshot.docs
-        .map((doc) {
-          print('${doc.id} ${doc.data()}');
-          return PlayerModel.fromFireStore(doc.id, doc.data());
-    })
-        .toList();
+    return querySnapshot;
   }
 
-  Future<List<RecordModel>> getPlayerRecords(String playerId) async {
-    final datesSnapshot = await FirebaseFirestore.instance.collection('dates').get();
+  Future<List> getPlayerRecords(String playerId) async {
+    final docSnapshot = await FirebaseFirestore.instance
+        .collection('playerRecords')
+        .doc(playerId)
+        .get();
 
-    List<RecordModel> records = [];
-    for (var dateDoc in datesSnapshot.docs) {
-      final playerRecordDoc = await dateDoc.reference
-          .collection('playerRecords')
-          .doc(playerId)
-          .get();
+    if (!docSnapshot.exists) return [];
 
-      if (playerRecordDoc.exists) {
-        final data = playerRecordDoc.data();
-        // records.add(
-        //   RecordModel(
-        //     date: dateDoc.id,
-        //     attendance: data['attendance'],
-        //     win: data['win'],
-        //     score: data['score'],
-        //     games: data['games'],
-        //   ),
-        // );
-      }
-    }
-    return records;
+
+    final data = docSnapshot.data();
+    if (data == null || !data.containsKey('records')) return [];
+
+    return data['records'];
   }
 }

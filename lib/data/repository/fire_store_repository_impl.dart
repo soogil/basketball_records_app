@@ -16,17 +16,25 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
 
   @override
   Future<dynamic> uploadPlayers() async {
-    return _fireStoreApi.uploadPlayersToFireStore();
+    return _fireStoreApi.uploadPlayersRecords();
   }
 
   @override
   Future<List<PlayerModel>> getPlayers() async {
-    return await _fireStoreApi.getPlayers();
+    final result = await _fireStoreApi.getPlayers();
+    return result.docs.map((doc) {
+      return PlayerModel.fromFireStore(doc.id, doc.data());
+    }).toList();
   }
 
   @override
   Future<List<RecordModel>> getPlayerRecords(String playerId) async {
-    return await _fireStoreApi.getPlayerRecords(playerId);
+    final result = await _fireStoreApi.getPlayerRecords(playerId);
+
+    final records = result.map((e) => RecordModel.fromJson(Map<String, dynamic>.from(e))).toList();
+
+    records.sort((a, b) => b.date.compareTo(a.date));
+    return records;
   }
 }
 

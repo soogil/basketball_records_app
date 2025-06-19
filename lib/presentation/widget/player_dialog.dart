@@ -18,9 +18,9 @@ class PlayerDialog extends StatefulWidget {
 }
 
 class _PlayerDialogState extends State<PlayerDialog> {
-  List<PlayerModel> availablePlayers = [];
-  List<List<PlayerGameInput>> teams = [[], []];
-  List<TeamMeta> teamMetas = [TeamMeta(), TeamMeta()];
+  late final List<PlayerModel> availablePlayers;
+  final List<List<PlayerGameInput>> teams = [[], []];
+  late final List<TeamMeta> teamMetas = [TeamMeta(), TeamMeta()];
   int selectedTeam = 0;
 
   @override
@@ -128,65 +128,66 @@ class _PlayerDialogState extends State<PlayerDialog> {
                         ),
                       ),
                       onTap: () => selectTeam(i),
-                      tileColor: selectedTeam == i ? BRColors.greenCf : BRColors.greyDa,
-                      title: InkWell(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text('팀 ${i + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 20),
-                                    SizedBox(
-                                      width: 50,
-                                      child: TextField(
-                                        decoration: InputDecoration(labelText: "경기", isDense: true),
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                        controller: teamMetas[i].gamesController,
-                                      ),
+                      tileColor: selectedTeam == i ? BRColors.greenB2 : BRColors.greyDa,
+                      title: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text('팀 ${i + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  const SizedBox(width: 20),
+                                  Flexible(
+                                    child: TextField(
+                                      decoration: InputDecoration(labelText: "경기", isDense: true),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      controller: teamMetas[i].gamesController,
                                     ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 50,
-                                      child: TextField(
-                                        decoration: InputDecoration(labelText: "승", isDense: true),
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                        controller: teamMetas[i].winsController,
-                                      ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: TextField(
+                                      decoration: InputDecoration(labelText: "승리", isDense: true),
+                                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+                                      ],
+                                      controller: teamMetas[i].winsController,
                                     ),
-                                    const SizedBox(width: 10),
-                                    SizedBox(
-                                      width: 50,
-                                      child: TextField(
-                                        decoration: InputDecoration(labelText: "승점", isDense: true),
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                        controller: teamMetas[i].scoreController,
-                                      ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: TextField(
+                                      decoration: InputDecoration(labelText: "승점", isDense: true),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      controller: teamMetas[i].scoreController,
                                     ),
-                                    if (teams.length == 3 && i == 2)
-                                      IconButton(
-                                        icon: Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => removeTeam(i),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  spacing: 8,
-                                  children: teams[i].map(
-                                        (playerInput) => _playerDetail(playerInput, i, onUpdate: () => setState(() {})),
-                                  ).toList(),
-                                ),
-                              ],
-                            ),
+                                  ),
+                                  if (teams.length == 3 && i == 2)
+                                    InkWell(
+                                      child: Icon(Icons.delete, color: BRColors.greenB2),
+                                      onTap: () => removeTeam(i),
+                                    )
+                                    // IconButton(
+                                    //   icon: Icon(Icons.delete, color: BRColors.greenB2),
+                                    //   onPressed: () => removeTeam(i),
+                                    // ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                spacing: 8,
+                                children: teams[i].map(
+                                      (playerInput) => _playerDetail(playerInput, i, onUpdate: () => setState(() {})),
+                                ).toList(),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -211,6 +212,7 @@ class _PlayerDialogState extends State<PlayerDialog> {
             children: availablePlayers
                 .map(
                   (player) => ActionChip(
+                    backgroundColor: BRColors.greyDa,
                 label: Text(player.name),
                 onPressed: () => movePlayerToTeam(player),
               ),
@@ -218,18 +220,31 @@ class _PlayerDialogState extends State<PlayerDialog> {
                 .toList(),
           ),
           SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              final teamInputs = List<TeamInput>.generate(
-                teams.length,
-                    (i) => TeamInput(
-                  teamName: '팀 ${i + 1}',
-                  players: teams[i],
+          SizedBox(
+            height: 50,
+            width: 150,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: BRColors.greenCf,
+              ),
+              onPressed: () {
+                final teamInputs = List<TeamInput>.generate(
+                  teams.length,
+                      (i) => TeamInput(
+                    teamName: '팀 ${i + 1}',
+                    players: teams[i],
+                  ),
+                );
+                widget.onSave(teamInputs);
+              },
+              child: Text(
+                  '저장',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: BRColors.black
                 ),
-              );
-              widget.onSave(teamInputs);
-            },
-            child: Text('저장'),
+              ),
+            ),
           ),
         ],
       ),
@@ -252,8 +267,7 @@ class _PlayerDialogState extends State<PlayerDialog> {
           children: [
             Text(input.player.name, style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(width: 15),
-            SizedBox(
-              width: 55,
+            Flexible(
               child: DropdownButton<int>(
                 value: input.attendanceScore,
                 isExpanded: true,
@@ -266,16 +280,30 @@ class _PlayerDialogState extends State<PlayerDialog> {
                   if (v != null) {
                     setState(() {
                       input.attendanceScore = v;
+                      if (v == -5) {
+                        // 노쇼면 0으로 초기화
+                        input.gamesController.text = '0';
+                        input.winsController.text = '0';
+                        input.scoreController.text = '0';
+                      } else {
+                        // 팀 입력폼 따라감
+                        final meta = teamMetas[index];
+                        input.gamesController.text = meta.gamesController.text;
+                        input.winsController.text = meta.winsController.text;
+                        input.scoreController.text = meta.scoreController.text;
+                      }
                     });
                     onUpdate();
                   }
                 },
+                style: TextStyle(
+                  fontSize: 14
+                ),
                 underline: SizedBox(),
               ),
             ),
             const SizedBox(width: 8),
-            SizedBox(
-              width: 40,
+            Flexible(
               child: TextField(
                 decoration: InputDecoration(labelText: '경기', isDense: true),
                 keyboardType: TextInputType.number,
@@ -284,18 +312,18 @@ class _PlayerDialogState extends State<PlayerDialog> {
               ),
             ),
             const SizedBox(width: 4),
-            SizedBox(
-              width: 40,
+            Flexible(
               child: TextField(
                 decoration: InputDecoration(labelText: '승리', isDense: true),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+                ],
                 controller: input.winsController,
               ),
             ),
             const SizedBox(width: 4),
-            SizedBox(
-              width: 45,
+            Flexible(
               child: TextField(
                 decoration: InputDecoration(labelText: '승점', isDense: true),
                 keyboardType: TextInputType.number,

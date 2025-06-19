@@ -1,4 +1,5 @@
 import 'package:basketball_records/presentation/view/main_page.dart';
+import 'package:basketball_records/presentation/view/player_detail_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,12 +13,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: AppPage.main.path,
-    redirect: (context, state) {
-      if (state.uri.path == AppPage.main.path) {
-        return AppPage.main.path;
-      }
-      return null;
-    },
     routes: [
       GoRoute(
         path: AppPage.main.path,
@@ -28,7 +23,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppPage.playerDetail.path,
         name: AppPage.playerDetail.name,
         builder: (context, state) {
-          return const MainPage();
+          final Map data = state.extra as Map;
+
+          final String playerId = data['playerId'];
+          final String playerName = data['playerName'];
+
+          return PlayerDetailPage(playerId: playerId, playerName: playerName);
         },
       ),
     ],
