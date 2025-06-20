@@ -53,10 +53,17 @@ class MainPage extends ConsumerWidget {
                       backgroundColor: BRColors.whiteE8,
                       child: PlayerDialog(
                         allPlayers: players,
-                        onSave: (List<TeamInput> teams) async {
-                          // 저장 콜백 - 여기에 Firestore 저장 로직
-                          // 예: await saveTeamRecordsToFirestore(teams);
-                          Navigator.pop(context);
+                        onSave: (DateTime? dateTime, List<TeamInput> teams) async {
+                          for (var teamInput in teams) {
+                            teamInput.players.forEach((player) => print(player.toString()));
+                          }
+
+                          // Navigator.pop(context);
+                        },
+                        onRemove: (DateTime date) async {
+                          final mainViewModel = ref.read(playerListViewModelProvider.notifier);
+
+                          await mainViewModel.deleteDateFromAllPlayerRecords(date);
                         },
                       ),
                     );
@@ -126,7 +133,7 @@ class MainPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(col.label),
+                  Text(col.label, textAlign: TextAlign.center,),
                   if (isSorted)
                     Row(
                       children: [

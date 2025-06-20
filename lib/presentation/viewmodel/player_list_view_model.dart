@@ -61,8 +61,8 @@ class PlayerListViewModel extends _$PlayerListViewModel {
         case PlayerColumn.wins:
           compare = a.wins.compareTo(b.wins);
           break;
-        case PlayerColumn.attendanceScore:
-          compare = a.attendanceScore.compareTo(b.attendanceScore);
+        case PlayerColumn.totalAttendanceScore:
+          compare = a.totalAttendanceScore.compareTo(b.totalAttendanceScore);
           break;
         case PlayerColumn.totalScore:
           compare = a.totalScore.compareTo(b.totalScore);
@@ -89,5 +89,14 @@ class PlayerListViewModel extends _$PlayerListViewModel {
     state = AsyncData(
       PlayerListState(players: state.value!.players, hoveredId: id),
     );
+  }
+
+  Future save(DateTime dateTime) async {
+    // await _fireStoreRepository.updatePlayerRecords(dateTime);
+    // await _fireStoreRepository.updatePlayerStats(dateTime);
+  }
+
+  Future deleteDateFromAllPlayerRecords(DateTime dateTime) async {
+    await _fireStoreRepository.deleteDateFromAllPlayerRecords(dateTime);
   }
 }

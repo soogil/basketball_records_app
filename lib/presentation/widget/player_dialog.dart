@@ -4,14 +4,17 @@ import 'package:flutter/services.dart'; // for TextInputFormatter
 import 'package:basketball_records/data/model/player_model.dart';
 
 class PlayerDialog extends StatefulWidget {
-  final List<PlayerModel> allPlayers;
-  final Function(List<TeamInput>) onSave;
 
   const PlayerDialog({
     super.key,
     required this.allPlayers,
     required this.onSave,
+    this.onRemove,
   });
+
+  final List<PlayerModel> allPlayers;
+  final Function(DateTime? selectedDate, List<TeamInput>) onSave;
+  final Function(DateTime date)? onRemove;
 
   @override
   State<PlayerDialog> createState() => _PlayerDialogState();
@@ -21,7 +24,8 @@ class _PlayerDialogState extends State<PlayerDialog> {
   late final List<PlayerModel> availablePlayers;
   final List<List<PlayerGameInput>> teams = [[], []];
   late final List<TeamMeta> teamMetas = [TeamMeta(), TeamMeta()];
-  int selectedTeam = 0;
+  int _selectedTeam = 0;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -50,14 +54,14 @@ class _PlayerDialogState extends State<PlayerDialog> {
       teams.removeAt(idx);
       teamMetas[idx].dispose();
       teamMetas.removeAt(idx);
-      if (selectedTeam >= teams.length) selectedTeam = 0;
+      if (_selectedTeam >= teams.length) _selectedTeam = 0;
       availablePlayers.sort((a, b) => a.name.compareTo(b.name));
     });
   }
 
   void selectTeam(int idx) {
     setState(() {
-      selectedTeam = idx;
+      _selectedTeam = idx;
     });
   }
 
@@ -66,11 +70,11 @@ class _PlayerDialogState extends State<PlayerDialog> {
     setState(() {
       availablePlayers.remove(player);
       final playerInput = PlayerGameInput(player: player);
-      final meta = teamMetas[selectedTeam];
+      final meta = teamMetas[_selectedTeam];
       playerInput.gamesController.text = meta.gamesController.text;
       playerInput.winsController.text = meta.winsController.text;
       playerInput.scoreController.text = meta.scoreController.text;
-      teams[selectedTeam].add(playerInput);
+      teams[_selectedTeam].add(playerInput);
     });
   }
 
@@ -112,6 +116,37 @@ class _PlayerDialogState extends State<PlayerDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 200,
+                child: GestureDetector(
+                  onTap: () async {
+                    _selectedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2025, 1, 1),
+                      lastDate: DateTime.now(),);
+                    setState(() {});
+                  }, // DatePicker 함수 연결
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: TextEditingController(
+                          text: _selectedDate == null
+                              ? null
+                              : "${_selectedDate?.year}-${_selectedDate?.month.toString().padLeft(2, '0')}-${_selectedDate?.day.toString().padLeft(2, '0')}"),
+                      decoration: InputDecoration(
+                        hintText: '날짜를 선택하세요',
+                        suffixIcon: Icon(Icons.calendar_today),
+                      ),
+                      readOnly: true,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10,),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,7 +163,7 @@ class _PlayerDialogState extends State<PlayerDialog> {
                         ),
                       ),
                       onTap: () => selectTeam(i),
-                      tileColor: selectedTeam == i ? BRColors.greenB2 : BRColors.greyDa,
+                      tileColor: _selectedTeam == i ? BRColors.greenB2 : BRColors.greyDa,
                       title: SingleChildScrollView(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 16),
@@ -220,31 +255,55 @@ class _PlayerDialogState extends State<PlayerDialog> {
                 .toList(),
           ),
           SizedBox(height: 16),
-          SizedBox(
-            height: 50,
-            width: 150,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: BRColors.greenCf,
-              ),
-              onPressed: () {
-                final teamInputs = List<TeamInput>.generate(
-                  teams.length,
-                      (i) => TeamInput(
-                    teamName: '팀 ${i + 1}',
-                    players: teams[i],
+          Row(
+            children: [
+              SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BRColors.greenCf,
                   ),
-                );
-                widget.onSave(teamInputs);
-              },
-              child: Text(
-                  '저장',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: BRColors.black
+                  onPressed: () {
+                    final teamInputs = List<TeamInput>.generate(
+                      teams.length,
+                          (i) => TeamInput(
+                        teamName: '팀 ${i + 1}',
+                        players: teams[i],
+                      ),
+                    );
+                    widget.onSave(_selectedDate, teamInputs);
+                  },
+                  child: Text(
+                      '저장',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: BRColors.black
+                    ),
+                  ),
+                ),
+              ),   SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BRColors.greenCf,
+                  ),
+                  onPressed: () {
+                    if (_selectedDate != null && widget.onRemove != null) {
+                      widget.onRemove!(_selectedDate!);
+                    }
+                  },
+                  child: Text(
+                    '삭제',
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: BRColors.black
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -345,18 +404,12 @@ class _PlayerDialogState extends State<PlayerDialog> {
 
 class PlayerGameInput {
   final PlayerModel player;
-  int games;
-  double wins;
-  int score;
+  int attendanceScore;
   final TextEditingController gamesController;
   final TextEditingController winsController;
   final TextEditingController scoreController;
-  int attendanceScore;
   PlayerGameInput({
     required this.player,
-    this.games = 0,
-    this.wins = 0,
-    this.score = 0,
     this.attendanceScore = 10,
   })  : gamesController = TextEditingController(),
         winsController = TextEditingController(),
@@ -366,6 +419,12 @@ class PlayerGameInput {
     gamesController.dispose();
     winsController.dispose();
     scoreController.dispose();
+  }
+
+  @override
+  String toString() {
+    return '이름: ${player.name} 참석: $attendanceScore '
+        '게임 수: ${gamesController.text} 승리: ${winsController.text} 승점: ${scoreController.text}';
   }
 }
 

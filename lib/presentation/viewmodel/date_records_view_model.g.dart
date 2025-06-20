@@ -7,7 +7,7 @@ part of 'date_records_view_model.dart';
 // **************************************************************************
 
 String _$dateRecordsViewModelHash() =>
-    r'ad5ecfb433d091a7edb8ff19be51cf6288da296e';
+    r'61a61c5cc519f812822dd94f3fd03ac0bce4d937';
 
 /// Copied from Dart SDK
 class _SystemHash {

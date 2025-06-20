@@ -16,7 +16,7 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
 
   @override
   Future<dynamic> uploadPlayers() async {
-    return _fireStoreApi.uploadPlayersRecords();
+    return _fireStoreApi.uploadPlayersToFireStore();
   }
 
   @override
@@ -35,6 +35,34 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
 
     records.sort((a, b) => b.date.compareTo(a.date));
     return records;
+  }
+
+  @override
+  Future<void> updatePlayerRecords(RecordModel record, String playerId) async {
+    await _fireStoreApi.updatePlayerRecords(playerId, record);
+  }
+
+  @override
+  Future<void> updatePlayerStats({
+    required String playerId,
+    required int attendance,
+    required int score,
+    required int win,
+    required int games,
+  }) async {
+    await _fireStoreApi.updatePlayerStats(
+        playerId: playerId,
+        attendance: attendance,
+        score: score,
+        win: win,
+        games: games);
+  }
+
+  @override
+  Future<void> deleteDateFromAllPlayerRecords(DateTime dateTime) async {
+    final String date =
+        '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+    await _fireStoreApi.deleteDateFromAllPlayerRecords(date);
   }
 }
 

@@ -11,9 +11,10 @@ PlayerModel _$PlayerModelFromJson(Map<String, dynamic> json) => PlayerModel(
       name: json['name'] as String,
       totalScore: (json['totalScore'] as num).toInt(),
       appearances: (json['appearances'] as num).toInt(),
-      attendanceScore: (json['attendanceScore'] as num).toInt(),
+      totalAttendanceScore: (json['totalAttendanceScore'] as num).toInt(),
       wins: (json['wins'] as num).toInt(),
-      winRate: (json['winRate'] as num).toDouble(),
+      seasonAppearances: (json['seasonAppearances'] as num).toInt(),
+      seasonWins: (json['seasonWins'] as num).toDouble(),
     );
 
 Map<String, dynamic> _$PlayerModelToJson(PlayerModel instance) =>
@@ -22,7 +23,8 @@ Map<String, dynamic> _$PlayerModelToJson(PlayerModel instance) =>
       'name': instance.name,
       'totalScore': instance.totalScore,
       'appearances': instance.appearances,
-      'attendanceScore': instance.attendanceScore,
       'wins': instance.wins,
-      'winRate': instance.winRate,
+      'seasonAppearances': instance.seasonAppearances,
+      'totalAttendanceScore': instance.totalAttendanceScore,
+      'seasonWins': instance.seasonWins,
     };

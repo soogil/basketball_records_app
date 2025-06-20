@@ -19,9 +19,10 @@ mixin _$PlayerModel {
   String get name;
   int get totalScore;
   int get appearances;
-  int get attendanceScore;
   int get wins;
-  double get winRate;
+  int get seasonAppearances;
+  int get totalAttendanceScore;
+  double get seasonWins;
 
   /// Create a copy of PlayerModel
   /// with the given fields replaced by the non-null parameter values.
@@ -41,20 +42,23 @@ mixin _$PlayerModel {
                 other.totalScore == totalScore) &&
             (identical(other.appearances, appearances) ||
                 other.appearances == appearances) &&
-            (identical(other.attendanceScore, attendanceScore) ||
-                other.attendanceScore == attendanceScore) &&
             (identical(other.wins, wins) || other.wins == wins) &&
-            (identical(other.winRate, winRate) || other.winRate == winRate));
+            (identical(other.seasonAppearances, seasonAppearances) ||
+                other.seasonAppearances == seasonAppearances) &&
+            (identical(other.totalAttendanceScore, totalAttendanceScore) ||
+                other.totalAttendanceScore == totalAttendanceScore) &&
+            (identical(other.seasonWins, seasonWins) ||
+                other.seasonWins == seasonWins));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, totalScore,
-      appearances, attendanceScore, wins, winRate);
+      appearances, wins, seasonAppearances, totalAttendanceScore, seasonWins);
 
   @override
   String toString() {
-    return 'PlayerModel(id: $id, name: $name, totalScore: $totalScore, appearances: $appearances, attendanceScore: $attendanceScore, wins: $wins, winRate: $winRate)';
+    return 'PlayerModel(id: $id, name: $name, totalScore: $totalScore, appearances: $appearances, wins: $wins, seasonAppearances: $seasonAppearances, totalAttendanceScore: $totalAttendanceScore, seasonWins: $seasonWins)';
   }
 }
 
@@ -69,9 +73,10 @@ abstract mixin class $PlayerModelCopyWith<$Res> {
       String name,
       int totalScore,
       int appearances,
-      int attendanceScore,
+      int totalAttendanceScore,
       int wins,
-      double winRate});
+      int seasonAppearances,
+      double seasonWins});
 }
 
 /// @nodoc
@@ -90,9 +95,10 @@ class _$PlayerModelCopyWithImpl<$Res> implements $PlayerModelCopyWith<$Res> {
     Object? name = null,
     Object? totalScore = null,
     Object? appearances = null,
-    Object? attendanceScore = null,
+    Object? totalAttendanceScore = null,
     Object? wins = null,
-    Object? winRate = null,
+    Object? seasonAppearances = null,
+    Object? seasonWins = null,
   }) {
     return _then(PlayerModel(
       id: null == id
@@ -111,17 +117,21 @@ class _$PlayerModelCopyWithImpl<$Res> implements $PlayerModelCopyWith<$Res> {
           ? _self.appearances
           : appearances // ignore: cast_nullable_to_non_nullable
               as int,
-      attendanceScore: null == attendanceScore
-          ? _self.attendanceScore
-          : attendanceScore // ignore: cast_nullable_to_non_nullable
+      totalAttendanceScore: null == totalAttendanceScore
+          ? _self.totalAttendanceScore
+          : totalAttendanceScore // ignore: cast_nullable_to_non_nullable
               as int,
       wins: null == wins
           ? _self.wins
           : wins // ignore: cast_nullable_to_non_nullable
               as int,
-      winRate: null == winRate
-          ? _self.winRate
-          : winRate // ignore: cast_nullable_to_non_nullable
+      seasonAppearances: null == seasonAppearances
+          ? _self.seasonAppearances
+          : seasonAppearances // ignore: cast_nullable_to_non_nullable
+              as int,
+      seasonWins: null == seasonWins
+          ? _self.seasonWins
+          : seasonWins // ignore: cast_nullable_to_non_nullable
               as double,
     ));
   }

@@ -37,5 +37,3 @@ flutter:
   uses-material-design: true
   assets:
     - assets/credentials.json
-    - assets/players.json
-    - assets/player_season_records.json
