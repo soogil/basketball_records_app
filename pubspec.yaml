@@ -1,5 +1,5 @@
-name: basketball_records
-description: "basketball_records"
+name: iggys_point
+description: "iggys_point"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
@@ -31,9 +31,12 @@ dev_dependencies:
   riverpod_generator: ^2.6.5
   build_runner: ^2.4.14
   json_serializable: ^6.9.3
+  change_app_package_name: ^1.5.0
 
 flutter:
 
   uses-material-design: true
   assets:
     - assets/credentials.json
+    - assets/players_backup.json
+    - assets/player_records_backup.json

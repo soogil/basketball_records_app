@@ -8,22 +8,22 @@ part 'record_model.g.dart';
 class RecordModel with _$RecordModel {
   RecordModel({
     required this.date,
-    required this.attendance,
-    required this.score,
-    required this.win,
-    required this.games,
+    required this.attendanceScore,
+    required this.winScore,
+    required this.winningGames,
+    required this.totalGames,
   });
 
   @override
   final String date;
   @override
-  final int attendance;
+  final int attendanceScore;
   @override
-  final int score;
+  final int winScore;
   @override
-  final int win;
+  final double winningGames;
   @override
-  final int games;
+  final int totalGames;
 
   factory RecordModel.fromJson(Map<String, dynamic> json) => _$RecordModelFromJson(json);
 
@@ -35,14 +35,14 @@ extension RecordModelPresentation on RecordModel {
     switch (column) {
       case PlayerRecordColumn.date:
         return date;
-      case PlayerRecordColumn.attendance:
-        return '$attendance점';
-      case PlayerRecordColumn.games:
-        return '$games경기';
-      case PlayerRecordColumn.win:
-        return '$win경기';
-      case PlayerRecordColumn.score:
-        return '$score점';
+      case PlayerRecordColumn.attendanceScore:
+        return '$attendanceScore점';
+      case PlayerRecordColumn.totalGames:
+        return '$totalGames경기';
+      case PlayerRecordColumn.winGames:
+        return '$winningGames경기';
+      case PlayerRecordColumn.winScore:
+        return '$winScore점';
     }
   }
 }
@@ -51,10 +51,10 @@ extension PlayerRecordColumnExtension on PlayerRecordColumn {
   String get label {
     switch (this) {
       case PlayerRecordColumn.date: return '날짜';
-      case PlayerRecordColumn.attendance: return '출석 점수';
-      case PlayerRecordColumn.games: return '경기 수';
-      case PlayerRecordColumn.win: return '승리';
-      case PlayerRecordColumn.score: return '승점';
+      case PlayerRecordColumn.attendanceScore: return '출석 점수';
+      case PlayerRecordColumn.totalGames: return '경기 수';
+      case PlayerRecordColumn.winGames: return '승리';
+      case PlayerRecordColumn.winScore: return '승점';
     }
   }
 }
@@ -62,8 +62,8 @@ extension PlayerRecordColumnExtension on PlayerRecordColumn {
 
 enum PlayerRecordColumn {
   date,
-  attendance,
-  games,
-  win,
-  score,
+  attendanceScore,
+  totalGames,
+  winGames,
+  winScore,
 }

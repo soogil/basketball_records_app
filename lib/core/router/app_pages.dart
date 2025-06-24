@@ -1,5 +1,6 @@
 enum AppPage {
   main,
+  recordAdd,
   playerDetail;
   //...;
 
@@ -9,6 +10,8 @@ enum AppPage {
         return '/';
       case AppPage.playerDetail:
         return '/playerDetail';
+      case AppPage.recordAdd:
+        return '/recordAdd';
       // case AppPage.settings:
       //   return '/settings';
     }

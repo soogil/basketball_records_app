@@ -1,6 +1,6 @@
-import 'package:basketball_records/data/model/record_model.dart';
-import 'package:basketball_records/data/repository/fire_store_repository_impl.dart';
-import 'package:basketball_records/domain/repository/fire_store_repository.dart';
+import 'package:iggys_point/data/model/record_model.dart';
+import 'package:iggys_point/data/repository/fire_store_repository_impl.dart';
+import 'package:iggys_point/domain/repository/fire_store_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'date_records_view_model.g.dart';

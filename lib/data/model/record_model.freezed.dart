@@ -16,10 +16,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RecordModel {
   String get date;
-  int get attendance;
-  int get score;
-  int get win;
-  int get games;
+  int get attendanceScore;
+  int get winScore;
+  double get winningGames;
+  int get totalGames;
 
   /// Create a copy of RecordModel
   /// with the given fields replaced by the non-null parameter values.
@@ -34,21 +34,24 @@ mixin _$RecordModel {
         (other.runtimeType == runtimeType &&
             other is RecordModel &&
             (identical(other.date, date) || other.date == date) &&
-            (identical(other.attendance, attendance) ||
-                other.attendance == attendance) &&
-            (identical(other.score, score) || other.score == score) &&
-            (identical(other.win, win) || other.win == win) &&
-            (identical(other.games, games) || other.games == games));
+            (identical(other.attendanceScore, attendanceScore) ||
+                other.attendanceScore == attendanceScore) &&
+            (identical(other.winScore, winScore) ||
+                other.winScore == winScore) &&
+            (identical(other.winningGames, winningGames) ||
+                other.winningGames == winningGames) &&
+            (identical(other.totalGames, totalGames) ||
+                other.totalGames == totalGames));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, date, attendance, score, win, games);
+  int get hashCode => Object.hash(
+      runtimeType, date, attendanceScore, winScore, winningGames, totalGames);
 
   @override
   String toString() {
-    return 'RecordModel(date: $date, attendance: $attendance, score: $score, win: $win, games: $games)';
+    return 'RecordModel(date: $date, attendanceScore: $attendanceScore, winScore: $winScore, winningGames: $winningGames, totalGames: $totalGames)';
   }
 }
 
@@ -58,7 +61,12 @@ abstract mixin class $RecordModelCopyWith<$Res> {
           RecordModel value, $Res Function(RecordModel) _then) =
       _$RecordModelCopyWithImpl;
   @useResult
-  $Res call({String date, int attendance, int score, int win, int games});
+  $Res call(
+      {String date,
+      int attendanceScore,
+      int winScore,
+      double winningGames,
+      int totalGames});
 }
 
 /// @nodoc
@@ -74,31 +82,31 @@ class _$RecordModelCopyWithImpl<$Res> implements $RecordModelCopyWith<$Res> {
   @override
   $Res call({
     Object? date = null,
-    Object? attendance = null,
-    Object? score = null,
-    Object? win = null,
-    Object? games = null,
+    Object? attendanceScore = null,
+    Object? winScore = null,
+    Object? winningGames = null,
+    Object? totalGames = null,
   }) {
     return _then(RecordModel(
       date: null == date
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
               as String,
-      attendance: null == attendance
-          ? _self.attendance
-          : attendance // ignore: cast_nullable_to_non_nullable
+      attendanceScore: null == attendanceScore
+          ? _self.attendanceScore
+          : attendanceScore // ignore: cast_nullable_to_non_nullable
               as int,
-      score: null == score
-          ? _self.score
-          : score // ignore: cast_nullable_to_non_nullable
+      winScore: null == winScore
+          ? _self.winScore
+          : winScore // ignore: cast_nullable_to_non_nullable
               as int,
-      win: null == win
-          ? _self.win
-          : win // ignore: cast_nullable_to_non_nullable
-              as int,
-      games: null == games
-          ? _self.games
-          : games // ignore: cast_nullable_to_non_nullable
+      winningGames: null == winningGames
+          ? _self.winningGames
+          : winningGames // ignore: cast_nullable_to_non_nullable
+              as double,
+      totalGames: null == totalGames
+          ? _self.totalGames
+          : totalGames // ignore: cast_nullable_to_non_nullable
               as int,
     ));
   }

@@ -8,17 +8,17 @@ part of 'record_model.dart';
 
 RecordModel _$RecordModelFromJson(Map<String, dynamic> json) => RecordModel(
       date: json['date'] as String,
-      attendance: (json['attendance'] as num).toInt(),
-      score: (json['score'] as num).toInt(),
-      win: (json['win'] as num).toInt(),
-      games: (json['games'] as num).toInt(),
+      attendanceScore: (json['attendanceScore'] as num).toInt(),
+      winScore: (json['winScore'] as num).toInt(),
+      winningGames: (json['winningGames'] as num).toDouble(),
+      totalGames: (json['totalGames'] as num).toInt(),
     );
 
 Map<String, dynamic> _$RecordModelToJson(RecordModel instance) =>
     <String, dynamic>{
       'date': instance.date,
-      'attendance': instance.attendance,
-      'score': instance.score,
-      'win': instance.win,
-      'games': instance.games,
+      'attendanceScore': instance.attendanceScore,
+      'winScore': instance.winScore,
+      'winningGames': instance.winningGames,
+      'totalGames': instance.totalGames,
     };

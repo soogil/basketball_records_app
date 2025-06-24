@@ -1,6 +1,6 @@
-import 'package:basketball_records/core/theme/br_color.dart';
-import 'package:basketball_records/data/model/record_model.dart';
-import 'package:basketball_records/presentation/viewmodel/date_records_view_model.dart';
+import 'package:iggys_point/core/theme/br_color.dart';
+import 'package:iggys_point/data/model/record_model.dart';
+import 'package:iggys_point/presentation/viewmodel/date_records_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';

@@ -1,7 +1,9 @@
-import 'package:basketball_records/presentation/view/main_page.dart';
-import 'package:basketball_records/presentation/view/player_detail_page.dart';
+import 'package:iggys_point/data/model/player_model.dart';
+import 'package:iggys_point/presentation/view/main_page.dart';
+import 'package:iggys_point/presentation/view/player_detail_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:iggys_point/presentation/view/record_add_page.dart';
 
 import 'app_pages.dart';
 
@@ -29,6 +31,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           final String playerName = data['playerName'];
 
           return PlayerDetailPage(playerId: playerId, playerName: playerName);
+        },
+      ),
+      GoRoute(
+        path: AppPage.recordAdd.path,
+        name: AppPage.recordAdd.name,
+        builder: (context, state) {
+          final Map data = state.extra as Map;
+
+          final List<PlayerModel> playerId = data['allPlayers'];
+          final Function(DateTime selectedDate, List<TeamInput>) onSave = data['onSave'];
+          final Function(DateTime date)? onRemove = data['onRemove'];
+
+          return RecordAddPage(
+            allPlayers: playerId,
+            onSave: onSave,
+            onRemove: onRemove,
+          );
         },
       ),
     ],

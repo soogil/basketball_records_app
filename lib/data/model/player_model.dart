@@ -10,11 +10,11 @@ class PlayerModel with _$PlayerModel {
     required this.id,
     required this.name,
     required this.totalScore,
-    required this.appearances,
-    required this.totalAttendanceScore,
-    required this.wins,
-    required this.seasonAppearances,
-    required this.seasonWins,
+    required this.attendanceScore,
+    required this.accumulatedScore,
+    required this.winScore,
+    required this.seasonTotalGames,
+    required this.seasonTotalWins,
   });
 
   @override
@@ -24,15 +24,15 @@ class PlayerModel with _$PlayerModel {
   @override
   final int totalScore;
   @override
-  final int appearances;
+  final int attendanceScore;
   @override
-  final int wins;
+  final int winScore;
   @override
-  final int seasonAppearances;
+  final double seasonTotalWins;
   @override
-  final int totalAttendanceScore;
+  final int seasonTotalGames;
   @override
-  final double seasonWins;
+  final int accumulatedScore;
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) => _$PlayerModelFromJson(json);
 
@@ -46,11 +46,11 @@ class PlayerModel with _$PlayerModel {
         id: id,
         name: json['name'] as String,
         totalScore: json['totalScore'] as int,
-        appearances: json['appearances'] as int,
-        totalAttendanceScore: json['totalAttendanceScore'] as int,
-        wins: json['wins'] as int,
-        seasonWins: (json['seasonWins'] as num).toDouble(),
-        seasonAppearances: json['seasonAppearances'] as int,
+        attendanceScore: json['attendanceScore'] as int,
+        accumulatedScore: json['accumulatedScore'] as int,
+        winScore: json['winScore'] as int,
+        seasonTotalWins: (json['seasonTotalWins'] as num).toDouble(),
+        seasonTotalGames: json['seasonTotalGames'] as int,
       );
 }
 
@@ -59,35 +59,35 @@ extension PlayerModelPresentation on PlayerModel {
     switch (column) {
       case PlayerColumn.name:
         return name;
-      case PlayerColumn.wins:
-        return '$wins점';
-      case PlayerColumn.totalAttendanceScore:
-        return '$totalAttendanceScore점';
+      case PlayerColumn.winScore:
+        return '$winScore점';
+      case PlayerColumn.accumulatedScore:
+        return '$accumulatedScore점';
       case PlayerColumn.totalScore:
         return '$totalScore점';
-      case PlayerColumn.appearances:
-        return '$appearances점';
+      case PlayerColumn.attendanceScore:
+        return '$attendanceScore점';
       case PlayerColumn.winRate:
-        return seasonAppearances == 0
+        return seasonTotalGames == 0
             ? '0%'
-            : '${((seasonWins / seasonAppearances) * 100).toStringAsFixed(0)}%';
+            : '${((seasonTotalWins / seasonTotalGames) * 100).toStringAsFixed(0)}%';
     }
   }
 
   double get winRate =>
-      seasonAppearances == 0
+      seasonTotalGames == 0
           ? 0
-          : (seasonWins/seasonAppearances) * 100;
+          : (seasonTotalWins/seasonTotalGames) * 100;
 }
 
 extension PlayerColumnExtension on PlayerColumn {
   String get label {
     switch (this) {
       case PlayerColumn.name: return '이름';
-      case PlayerColumn.wins: return '승점';
-      case PlayerColumn.totalAttendanceScore: return '24년~25년\n누적 합계';
+      case PlayerColumn.winScore: return '승점';
+      case PlayerColumn.accumulatedScore: return '24년~25년\n누적 합계';
       case PlayerColumn.totalScore: return '총점';
-      case PlayerColumn.appearances: return '출석 점수';
+      case PlayerColumn.attendanceScore: return '출석 점수';
       case PlayerColumn.winRate: return '승률';
     }
   }
@@ -96,8 +96,8 @@ extension PlayerColumnExtension on PlayerColumn {
 enum PlayerColumn {
   name,
   totalScore,
-  appearances,
-  wins,
+  attendanceScore,
+  winScore,
   winRate,
-  totalAttendanceScore,
+  accumulatedScore,
 }

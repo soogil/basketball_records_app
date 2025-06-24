@@ -1,4 +1,4 @@
-package com.soogil.basketball.record
+package com.soogil.iggys.point
 
 import io.flutter.embedding.android.FlutterActivity
 

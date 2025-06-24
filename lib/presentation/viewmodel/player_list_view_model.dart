@@ -1,6 +1,10 @@
-import 'package:basketball_records/data/model/player_model.dart';
-import 'package:basketball_records/data/repository/fire_store_repository_impl.dart';
-import 'package:basketball_records/domain/repository/fire_store_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:iggys_point/data/model/player_model.dart';
+import 'package:iggys_point/data/model/record_model.dart';
+import 'package:iggys_point/data/repository/fire_store_repository_impl.dart';
+import 'package:iggys_point/domain/repository/fire_store_repository.dart';
+import 'package:iggys_point/presentation/view/record_add_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'player_list_view_model.g.dart';
@@ -42,7 +46,6 @@ class PlayerListViewModel extends _$PlayerListViewModel {
   List<PlayerModel> sortPlayers(List<PlayerModel> input, PlayerColumn column, {bool? ascending}) {
     final players = [...input];
 
-    // 이름이면 오름차순, 나머지는 내림차순이 기본
     bool defaultAscending = (column == PlayerColumn.name);
 
     if (_sortColumn == column) {
@@ -58,17 +61,17 @@ class PlayerListViewModel extends _$PlayerListViewModel {
         case PlayerColumn.name:
           compare = a.name.compareTo(b.name);
           break;
-        case PlayerColumn.wins:
-          compare = a.wins.compareTo(b.wins);
+        case PlayerColumn.winScore:
+          compare = a.winScore.compareTo(b.winScore);
           break;
-        case PlayerColumn.totalAttendanceScore:
-          compare = a.totalAttendanceScore.compareTo(b.totalAttendanceScore);
+        case PlayerColumn.accumulatedScore:
+          compare = a.accumulatedScore.compareTo(b.accumulatedScore);
           break;
         case PlayerColumn.totalScore:
           compare = a.totalScore.compareTo(b.totalScore);
           break;
-        case PlayerColumn.appearances:
-          compare = a.appearances.compareTo(b.appearances);
+        case PlayerColumn.attendanceScore:
+          compare = a.attendanceScore.compareTo(b.attendanceScore);
           break;
         case PlayerColumn.winRate:
           compare = a.winRate.compareTo(b.winRate);
@@ -85,18 +88,20 @@ class PlayerListViewModel extends _$PlayerListViewModel {
     state = AsyncData(PlayerListState(players: sorted));
   }
 
-  void setHover({String? id}) {
-    state = AsyncData(
-      PlayerListState(players: state.value!.players, hoveredId: id),
-    );
+  Future savePlayerRecords({
+    required String recordDate,
+    required List<PlayerGameInput> playerInputs,
+  }) async {
+    await _fireStoreRepository.updatePlayerRecords(playerInputs, recordDate);
   }
 
-  Future save(DateTime dateTime) async {
-    // await _fireStoreRepository.updatePlayerRecords(dateTime);
-    // await _fireStoreRepository.updatePlayerStats(dateTime);
-  }
-
-  Future deleteDateFromAllPlayerRecords(DateTime dateTime) async {
-    await _fireStoreRepository.deleteDateFromAllPlayerRecords(dateTime);
+  Future<bool> removeRecordFromDate(String date) async {
+    try {
+      await _fireStoreRepository.removeRecordFromDate(date);
+    } catch(e) {
+      debugPrint(e.toString());
+      return false;
+    }
+    return true;
   }
 }

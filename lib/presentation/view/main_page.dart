@@ -1,8 +1,8 @@
-import 'package:basketball_records/core/router/app_pages.dart';
-import 'package:basketball_records/core/theme/br_color.dart';
-import 'package:basketball_records/data/model/player_model.dart';
-import 'package:basketball_records/presentation/viewmodel/player_list_view_model.dart';
-import 'package:basketball_records/presentation/widget/player_dialog.dart';
+import 'package:iggys_point/core/router/app_pages.dart';
+import 'package:iggys_point/core/theme/br_color.dart';
+import 'package:iggys_point/data/model/player_model.dart';
+import 'package:iggys_point/presentation/viewmodel/player_list_view_model.dart';
+import 'package:iggys_point/presentation/view/record_add_page.dart';
 // import 'package:data_table_2/data_table_2.dart' show ColumnSize, DataColumn2, DataRow2, DataTable2;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,30 +45,106 @@ class MainPage extends ConsumerWidget {
                 side: BorderSide(color: Colors.black)
             ),
             onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (_) {
-                    final players = ref.read(playerListViewModelProvider).value?.players ?? [];
-                    return Dialog(
-                      backgroundColor: BRColors.whiteE8,
-                      child: PlayerDialog(
-                        allPlayers: players,
-                        onSave: (DateTime? dateTime, List<TeamInput> teams) async {
-                          for (var teamInput in teams) {
-                            teamInput.players.forEach((player) => print(player.toString()));
-                          }
+              final players = ref.read(playerListViewModelProvider).value?.players ?? [];
 
-                          // Navigator.pop(context);
-                        },
-                        onRemove: (DateTime date) async {
-                          final mainViewModel = ref.read(playerListViewModelProvider.notifier);
+              onSave(DateTime dateTime, List<TeamInput> teams) async {
+                final viewModel = ref.read(
+                    playerListViewModelProvider.notifier);
+                final List<PlayerGameInput> playerInputs = teams
+                    .expand((team) => team.players)
+                    .toList();
 
-                          await mainViewModel.deleteDateFromAllPlayerRecords(date);
-                        },
-                      ),
-                    );
+                await viewModel.savePlayerRecords(
+                    recordDate: '${dateTime.year}-'
+                        '${dateTime.month.toString().padLeft(2, '0')}'
+                        '-${dateTime.day.toString().padLeft(2, '0')}',
+                    playerInputs: playerInputs);
+
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              }
+
+              onRemove(DateTime dateTime) async {
+                final String date = '${dateTime.year}-'
+                    '${dateTime.month.toString().padLeft(2, '0')}'
+                    '-${dateTime.day.toString().padLeft(2, '0')}';
+
+                final mainViewModel = ref.read(playerListViewModelProvider.notifier);
+
+                final bool result = await mainViewModel.removeRecordFromDate(date);
+
+                if (result) {
+                  if (context.mounted) {
+                    showDialog(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            content: Text(
+                              '$date 기록이 삭제 됐습니다.',
+                              style: TextStyle(
+                                  fontSize: 20
+                              ),
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                  onPressed: () {
+                                    if (context.mounted) {
+                                      Navigator.pop(context);
+                                    }
+                                  },
+                                  child: Text('완료'))
+                            ],
+                          );
+                        });
                   }
-              );
+                }
+              }
+
+            context.pushNamed(AppPage.recordAdd.name, extra: {
+                'onSave': onSave,
+                'onRemove': onRemove,
+              'allPlayers': players
+              }).then((_) {
+              ref.invalidate(playerListViewModelProvider);
+            });
+              // showDialog(
+              //     context: context,
+              //     builder: (_) {
+              //       final players = ref.read(playerListViewModelProvider).value?.players ?? [];
+              //       return Dialog(
+              //         backgroundColor: BRColors.whiteE8,
+              //         child: PlayerDialog(
+              //           allPlayers: players,
+              //           onSave: (DateTime dateTime, List<TeamInput> teams) async {
+              //             final viewModel = ref.read(
+              //                 playerListViewModelProvider.notifier);
+              //             final List<PlayerGameInput> playerInputs = teams
+              //                 .expand((team) => team.players)
+              //                 .toList();
+              //
+              //             await viewModel.savePlayerRecords(
+              //                 recordDate: '${dateTime.year}-'
+              //                     '${dateTime.month.toString().padLeft(2, '0')}'
+              //                     '-${dateTime.day.toString().padLeft(2, '0')}',
+              //                 playerInputs: playerInputs);
+              //
+              //             ref.invalidate(playerListViewModelProvider);
+              //             Navigator.pop(context);
+              //           },
+              //           onRemove: (DateTime date) async {
+              //             final mainViewModel = ref.read(playerListViewModelProvider.notifier);
+              //
+              //             final bool result = await mainViewModel.removeRecordFromDate(date);
+              //
+              //             if (result) {
+              //
+              //             }
+              //           },
+              //         ),
+              //       );
+              //     }
+              // );
             },
             child: Text(
               '기록 추가',

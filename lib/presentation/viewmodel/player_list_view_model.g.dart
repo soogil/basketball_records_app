@@ -7,7 +7,7 @@ part of 'player_list_view_model.dart';
 // **************************************************************************
 
 String _$playerListViewModelHash() =>
-    r'9377b80d1dd731c7a472e8641cd1de7ab40dc7d6';
+    r'e160aa02127e69bcc8ce0f8f52fbf8f717477614';
 
 /// See also [PlayerListViewModel].
 @ProviderFor(PlayerListViewModel)

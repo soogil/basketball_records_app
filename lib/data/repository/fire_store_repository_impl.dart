@@ -1,8 +1,9 @@
-import 'package:basketball_records/core/api/fire_store_api.dart';
-import 'package:basketball_records/data/model/player_model.dart';
-import 'package:basketball_records/data/model/record_model.dart';
-import 'package:basketball_records/domain/repository/fire_store_repository.dart';
+import 'package:iggys_point/core/api/fire_store_api.dart';
+import 'package:iggys_point/data/model/player_model.dart';
+import 'package:iggys_point/data/model/record_model.dart';
+import 'package:iggys_point/domain/repository/fire_store_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iggys_point/presentation/view/record_add_page.dart';
 
 final fireStoreImpl = Provider<FireStoreRepository>((ref) {
   final api = ref.read(fireStoreApiProvider);
@@ -38,31 +39,13 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
   }
 
   @override
-  Future<void> updatePlayerRecords(RecordModel record, String playerId) async {
-    await _fireStoreApi.updatePlayerRecords(playerId, record);
+  Future<void> updatePlayerRecords(List<PlayerGameInput> playerInputs, String recordDate ) async {
+    await _fireStoreApi.updatePlayerRecords(playerInputs, recordDate);
   }
 
   @override
-  Future<void> updatePlayerStats({
-    required String playerId,
-    required int attendance,
-    required int score,
-    required int win,
-    required int games,
-  }) async {
-    await _fireStoreApi.updatePlayerStats(
-        playerId: playerId,
-        attendance: attendance,
-        score: score,
-        win: win,
-        games: games);
-  }
-
-  @override
-  Future<void> deleteDateFromAllPlayerRecords(DateTime dateTime) async {
-    final String date =
-        '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
-    await _fireStoreApi.deleteDateFromAllPlayerRecords(date);
+  Future<void> removeRecordFromDate(String date) async {
+    await _fireStoreApi.removeRecordFromDate(date);
   }
 }
 

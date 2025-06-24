@@ -1,16 +1,18 @@
 import 'dart:convert';
 
-import 'package:basketball_records/data/model/record_model.dart';
+import 'package:flutter/foundation.dart';
+import 'package:iggys_point/data/model/record_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:iggys_point/presentation/view/record_add_page.dart';
 
 
 final fireStoreApiProvider = Provider<FireStoreApi>((ref) => FireStoreApi());
 
 class FireStoreApi {
 
-  Future<void> uploadPlayersToFireStore() async {
+  Future<void> uploadPlayersToFireStore2() async {
     final String jsonString = await rootBundle.loadString('assets/4players_by_id_dict.json');
 
     final Map<String, dynamic> playersById = jsonDecode(jsonString);
@@ -48,26 +50,33 @@ class FireStoreApi {
   //   html.Url.revokeObjectUrl(url);
   // }
 
-  Future<void> uploadPlayersToFireStore2() async {
-    final String jsonString = await rootBundle.loadString('assets/players_with.json');
-    final List<dynamic> playerList = jsonDecode(jsonString);
+  Future<void> uploadPlayersToFireStore3() async {
+    final String jsonString = await rootBundle.loadString('assets/players_backup.json');
+    final Map<String, dynamic> playerMap = jsonDecode(jsonString);
 
     final playersRef = FirebaseFirestore.instance.collection('players');
 
-    for (final player in playerList) {
-      final name = player['name'];
+    for (final entry in playerMap.entries) {
+      final id = entry.key;
+      final data = entry.value as Map<String, dynamic>;
 
-      // 2. 이름으로 도큐먼트 찾기
-      final querySnapshot = await playersRef.where('name', isEqualTo: name).get();
+      // **필드 전부 삭제 후 새 데이터로 덮어쓰기**
+      await playersRef.doc(id).set(data); // merge: false가 기본값 (전부 대체)
+    }
+  }
 
-      if (querySnapshot.docs.isNotEmpty) {
-        final docRef = querySnapshot.docs.first.reference;
+  Future<void> uploadPlayersToFireStore() async {
+    final String jsonString = await rootBundle.loadString('assets/player_records_backup.json');
+    final Map<String, dynamic> recordsMap = jsonDecode(jsonString);
 
-        // 3. 완전히 덮어쓰기 (기존 필드 전부 삭제, player 객체 전체로 덮어쓰기)
-        await docRef.set(player);
-      } else {
-        print('No document found for name: $name');
-      }
+    final playerRecordsRef = FirebaseFirestore.instance.collection('playerRecords');
+
+    for (final entry in recordsMap.entries) {
+      final id = entry.key;
+      final data = entry.value as Map<String, dynamic>;
+
+      // Firestore에 완전히 덮어쓰기
+      await playerRecordsRef.doc(id).set(data); // {records: ...} 구조로 들어갑니다.
     }
   }
 
@@ -107,56 +116,115 @@ class FireStoreApi {
     return data['records'];
   }
 
-  Future<void> updatePlayerRecords(String playerId, RecordModel record) async {
-    final recordRef = FirebaseFirestore.instance.collection('playerRecords').doc(playerId);
+  Future<void> updatePlayerRecords(
+      List<PlayerGameInput> playerInputs,
+      String recordDate) async {
+    final firestore = FirebaseFirestore.instance;
+    final batch = firestore.batch();
 
-    // 1. 기존 기록 가져오기
-    final snapshot = await recordRef.get();
-    List<dynamic> records = [];
-    if (snapshot.exists && snapshot.data() != null) {
-      records = List.from(snapshot.data()!['records'] ?? []);
+    for (final playerInput in playerInputs) {
+      final playerId = playerInput.playerId;
+      final recordRef = firestore.collection('playerRecords').doc(playerId);
+      final playerRef = firestore.collection('players').doc(playerId);
+
+      // 1. RecordModel 생성 (각 선수의 해당 날짜 기록)
+      final recordModel = RecordModel(
+        date: recordDate,
+        attendanceScore: playerInput.attendanceScore,
+        winScore: playerInput.winScore.toInt(),
+        winningGames: playerInput.winGames.toDouble(),
+        totalGames: playerInput.totalGames.toInt(),
+      );
+
+      // 2. 기존 기록 읽기 (해당 선수)
+      final snapshot = await recordRef.get();
+      List<dynamic> playerRecords = [];
+      if (snapshot.exists && snapshot.data() != null) {
+        playerRecords = List.from(snapshot.data()!['records'] ?? []);
+      }
+      final idx = playerRecords.indexWhere((r) => r['date'] == recordDate);
+      if (idx >= 0) {
+        playerRecords[idx] = recordModel.toJson();
+      } else {
+        playerRecords.add(recordModel.toJson());
+      }
+
+      // 3. batch로 기록/누적치 갱신 추가
+      batch.set(recordRef, {'records': playerRecords});
+      batch.update(playerRef, {
+        'totalScore': FieldValue.increment(playerInput.attendanceScore + playerInput.winScore),
+        'attendanceScore': FieldValue.increment(playerInput.attendanceScore),
+        'winScore': FieldValue.increment(playerInput.winScore),
+        'seasonTotalWins': FieldValue.increment(playerInput.winGames),
+        'seasonTotalGames': FieldValue.increment(playerInput.totalGames),
+        'accumulatedScore': FieldValue.increment(playerInput.attendanceScore + playerInput.winScore),
+      });
     }
 
-    // 2. 날짜 중복 체크 후 갱신/추가
-    final idx = records.indexWhere((r) => r['date'] == record.date);
-    if (idx >= 0) {
-      records[idx] = record.toJson();
-    } else {
-      records.add(record.toJson());
+    // 4. batch 커밋: 한 명이라도 실패시 모두 롤백
+    try {
+      await batch.commit();
+    } catch (e) {
+      debugPrint('Batch update failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> removeRecordFromDate(String targetDate) async {
+    final firestore = FirebaseFirestore.instance;
+    final playerRecordsRef = firestore.collection('playerRecords');
+    final playersRef = firestore.collection('players');
+
+    final snapshot = await playerRecordsRef.get();
+    final batch = firestore.batch();
+
+    for (final doc in snapshot.docs) {
+      final playerId = doc.id;
+      final data = doc.data();
+      List<dynamic> records = List.from(data['records'] ?? []);
+
+      // 삭제 대상 기록 추출
+      final toRemove = records.where((r) => r['date'] == targetDate).toList();
+
+      // 해당 날짜 기록만 삭제
+      records.removeWhere((r) => r['date'] == targetDate);
+
+      // batch로 playerRecords 갱신
+      batch.set(doc.reference, {'records': records});
+
+      // 만약 해당 날짜 기록이 존재하면 players의 누적값에서 빼기
+      if (toRemove.isNotEmpty) {
+        final r = toRemove.first; // 한 날짜에 하나만 있다고 가정
+        batch.update(playersRef.doc(playerId), {
+          'totalScore': FieldValue.increment(-(r['attendanceScore'] ?? 0) - (r['winScore'] ?? 0)),
+          'attendanceScore': FieldValue.increment(-(r['attendanceScore'] ?? 0)),
+          'winScore': FieldValue.increment(-(r['winScore'] ?? 0)),
+          'seasonTotalWins': FieldValue.increment(-(r['winningGames'] ?? 0)),
+          'seasonTotalGames': FieldValue.increment(-(r['totalGames'] ?? 0)),
+          'accumulatedScore': FieldValue.increment(-(r['attendanceScore'] ?? 0) - (r['winScore'] ?? 0)),
+        });
+      }
     }
 
-    // 3. 저장
-    await recordRef.set({'records': records});
+    await batch.commit();
   }
 
   Future<void> updatePlayerStats({
-    required String playerId,
+    required PlayerGameInput playerGameInput,
     required int attendance,
     required int score,
-    required int win,
+    required double win,
     required int games,
   }) async {
-    final playerRef = FirebaseFirestore.instance.collection('players').doc(playerId);
+    final playerRef = FirebaseFirestore.instance.collection('players').doc(playerGameInput.playerId);
 
     await playerRef.update({
-      'totalAttendanceScore': FieldValue.increment(attendance),
-      'totalScore': FieldValue.increment(score),
-      'wins': FieldValue.increment(win),
-      'appearances': FieldValue.increment(games),
-      // 필요시 다른 필드도
+      'totalScore': FieldValue.increment(playerGameInput.attendanceScore + playerGameInput.winScore),
+      'attendanceScore': FieldValue.increment(playerGameInput.attendanceScore),
+      'winScore': FieldValue.increment(playerGameInput.winScore),
+      'seasonTotalWins': FieldValue.increment(playerGameInput.winGames),
+      'seasonTotalGames': FieldValue.increment(playerGameInput.totalGames),
+      'accumulatedScore': FieldValue.increment(playerGameInput.attendanceScore + playerGameInput.winScore),
     });
-  }
-
-  Future<void> deleteDateFromAllPlayerRecords(String dateToRemove) async {
-    final playerRecordsRef = FirebaseFirestore.instance.collection('playerRecords');
-    final snapshot = await playerRecordsRef.get();
-
-    for (final doc in snapshot.docs) {
-      List<dynamic> records = List.from(doc.data()['records'] ?? []);
-      // 해당 날짜의 기록만 제외한 새 리스트
-      records.removeWhere((r) => r['date'] == dateToRemove);
-
-      await doc.reference.update({'records': records});
-    }
   }
 }

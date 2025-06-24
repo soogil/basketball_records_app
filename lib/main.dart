@@ -1,4 +1,4 @@
-import 'package:basketball_records/core/router/app_routes.dart';
+import 'package:iggys_point/core/router/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, SystemUiMode;
