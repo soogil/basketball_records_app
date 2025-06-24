@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:iggys_point/data/model/record_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,86 +13,50 @@ final fireStoreApiProvider = Provider<FireStoreApi>((ref) => FireStoreApi());
 
 class FireStoreApi {
 
-  Future<void> uploadPlayersToFireStore2() async {
-    final String jsonString = await rootBundle.loadString('assets/4players_by_id_dict.json');
-
-    final Map<String, dynamic> playersById = jsonDecode(jsonString);
-
+  Future uploadPlayersToFireStore() async {
+    //backup data
     final playersRef = FirebaseFirestore.instance.collection('playerRecords');
+    final snapshot = await playersRef.get();
 
-    for (final entry in playersById.entries) {
-      final id = entry.key;
-      final records = entry.value['records'];
-
-      await playersRef.doc(id).set({
-        'records': records,
-      });
+    Map<String, dynamic> allRecords = {};
+    for (final doc in snapshot.docs) {
+      allRecords[doc.id] = doc.data();
     }
+
+    String jsonString = jsonEncode(allRecords);
+
+    final bytes = utf8.encode(jsonString);
+    final blob = html.Blob([bytes]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute("download", "players_backup.json")
+      ..click();
+    html.Url.revokeObjectUrl(url);
+
+    //upload backup Data
+    //   final playersJson = await rootBundle.loadString('assets/players_backup.json');
+    //   final playerRecordsJson = await rootBundle.loadString('assets/player_records_backup.json');
+    //   final players = jsonDecode(playersJson) as Map<String, dynamic>;
+    //   final records = jsonDecode(playerRecordsJson) as Map<String, dynamic>;
+    //
+    //   final firestore = FirebaseFirestore.instance;
+    //
+    //   // players (id = docId, value = fields)
+    //   for (final entry in players.entries) {
+    //     final id = entry.key;
+    //     final data = entry.value as Map<String, dynamic>;
+    //     await firestore.collection('players').doc(id).set(data);
+    //   }
+    //
+    //   // playerRecords (id = docId, value = { records: [...] })
+    //   for (final entry in records.entries) {
+    //     final id = entry.key;
+    //     final data = entry.value as Map<String, dynamic>;
+    //     await firestore.collection('playerRecords').doc(id).set(data);
+    //   }
+    //
+    //   print('All players and records imported!');
   }
-
-  // Future backupData() async {
-  //   final playersRef = FirebaseFirestore.instance.collection('players');
-  //   final snapshot = await playersRef.get();
-  //
-  //   Map<String, dynamic> allRecords = {};
-  //   for (final doc in snapshot.docs) {
-  //     allRecords[doc.id] = doc.data();
-  //   }
-  //
-  //   String jsonString = jsonEncode(allRecords);
-  //
-  //   // 웹에서 파일로 다운로드
-  //   final bytes = utf8.encode(jsonString);
-  //   final blob = html.Blob([bytes]);
-  //   final url = html.Url.createObjectUrlFromBlob(blob);
-  //   final anchor = html.AnchorElement(href: url)
-  //     ..setAttribute("download", "players_backup.json")
-  //     ..click();
-  //   html.Url.revokeObjectUrl(url);
-  // }
-
-  Future<void> uploadPlayersToFireStore3() async {
-    final String jsonString = await rootBundle.loadString('assets/players_backup.json');
-    final Map<String, dynamic> playerMap = jsonDecode(jsonString);
-
-    final playersRef = FirebaseFirestore.instance.collection('players');
-
-    for (final entry in playerMap.entries) {
-      final id = entry.key;
-      final data = entry.value as Map<String, dynamic>;
-
-      // **필드 전부 삭제 후 새 데이터로 덮어쓰기**
-      await playersRef.doc(id).set(data); // merge: false가 기본값 (전부 대체)
-    }
-  }
-
-  Future<void> uploadPlayersToFireStore() async {
-    final String jsonString = await rootBundle.loadString('assets/player_records_backup.json');
-    final Map<String, dynamic> recordsMap = jsonDecode(jsonString);
-
-    final playerRecordsRef = FirebaseFirestore.instance.collection('playerRecords');
-
-    for (final entry in recordsMap.entries) {
-      final id = entry.key;
-      final data = entry.value as Map<String, dynamic>;
-
-      // Firestore에 완전히 덮어쓰기
-      await playerRecordsRef.doc(id).set(data); // {records: ...} 구조로 들어갑니다.
-    }
-  }
-
-  // Future<void> uploadPlayersRecords() async {
-  //   final String jsonString = await rootBundle.loadString('assets/player_season_records.json');
-  //   final CollectionReference playersRef = FirebaseFirestore
-  //       .instance
-  //       .collection('playerRecords');
-  //
-  //   final Map<String, dynamic> data = json.decode(jsonString);
-  //   for (final playerId in data.keys) {
-  //     final List<dynamic> records = data[playerId];
-  //     await playersRef.doc(playerId).set({"records": records});
-  //   }
-  // }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getPlayers() async {
     final querySnapshot = await FirebaseFirestore.instance
@@ -209,22 +174,25 @@ class FireStoreApi {
     await batch.commit();
   }
 
-  Future<void> updatePlayerStats({
-    required PlayerGameInput playerGameInput,
-    required int attendance,
-    required int score,
-    required double win,
-    required int games,
-  }) async {
-    final playerRef = FirebaseFirestore.instance.collection('players').doc(playerGameInput.playerId);
+  Future<bool> hasAnyRealRecordOnDate(String date) async {
+    final playerRecordsRef = FirebaseFirestore.instance.collection('playerRecords');
+    final snapshot = await playerRecordsRef.get();
 
-    await playerRef.update({
-      'totalScore': FieldValue.increment(playerGameInput.attendanceScore + playerGameInput.winScore),
-      'attendanceScore': FieldValue.increment(playerGameInput.attendanceScore),
-      'winScore': FieldValue.increment(playerGameInput.winScore),
-      'seasonTotalWins': FieldValue.increment(playerGameInput.winGames),
-      'seasonTotalGames': FieldValue.increment(playerGameInput.totalGames),
-      'accumulatedScore': FieldValue.increment(playerGameInput.attendanceScore + playerGameInput.winScore),
-    });
+    for (final doc in snapshot.docs) {
+      final records = List.from(doc.data()['records'] ?? []);
+      for (final record in records) {
+        if (record['date'] == date) {
+          // 하나라도 0이 아니면 true
+          final attendance = record['attendanceScore'] ?? 0;
+          final score = record['winScore'] ?? 0;
+          final win = record['winningGames'] ?? 0;
+          final games = record['totalGames'] ?? 0;
+          if (attendance != 0 || score != 0 || win != 0 || games != 0) {
+            return true; // 하나라도 0이 아니면 "기록 있음"
+          }
+        }
+      }
+    }
+    return false; // 모두 0이거나, date자체가 없는 경우
   }
 }

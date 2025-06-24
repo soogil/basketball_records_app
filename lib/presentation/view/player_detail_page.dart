@@ -1,5 +1,6 @@
 import 'package:iggys_point/core/theme/br_color.dart';
 import 'package:iggys_point/data/model/record_model.dart';
+import 'package:iggys_point/presentation/view/main_page.dart';
 import 'package:iggys_point/presentation/viewmodel/date_records_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,9 +21,9 @@ class PlayerDetailPage extends ConsumerWidget {
     final recordsState = ref.watch(dateRecordsViewModelProvider(playerId));
 
     return Scaffold(
-      appBar: _appBar(),
+      appBar: _appBar(context),
       body: recordsState.when(
-          data: (data) => _body(data, ref),
+          data: (data) => _body(context, data, ref),
           error: (_, e) => Text(e.toString()),
           loading: () => Center(child: CircularProgressIndicator(
             color: BRColors.greyDa,
@@ -30,25 +31,26 @@ class PlayerDetailPage extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _appBar() {
+  PreferredSizeWidget _appBar(BuildContext context) {
     return AppBar(
       toolbarHeight: 70,
+      centerTitle: true,
       backgroundColor: BRColors.greenB2,
       title: Text(
-          '$playerName 기록',
+        '$playerName 기록',
         style: TextStyle(
-          fontSize: 25,
-          color: BRColors.white,
+            fontSize: 24.0.responsiveFontSize(context, minFontSize: 18),
+            color: BRColors.white
         ),
       ),
     );
   }
 
-  Widget _body(DateRecords state, WidgetRef ref) {
+  Widget _body(BuildContext context, DateRecords state, WidgetRef ref) {
     return CustomScrollView(
       slivers: [
         SliverStickyHeader(
-          header: _buildHeader(ref),
+          header: _buildHeader(context, ref),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -63,14 +65,12 @@ class PlayerDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(WidgetRef ref) {
-    final viewModel = ref.watch(dateRecordsViewModelProvider(playerId).notifier);
-
+  Widget _buildHeader(BuildContext context, WidgetRef ref) {
     return Row(
       children: PlayerRecordColumn.values.map((col) {
         // final isSorted = viewModel.sortColumn == col;
         return Expanded(
-          flex: 1,
+          flex: col.flex,
           child: Container(
             color: BRColors.greenCf,
             height: 50,
@@ -80,20 +80,10 @@ class PlayerDetailPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(col.label),
-                  // if (isSorted)
-                  //   Row(
-                  //     children: [
-                  //       const SizedBox(width: 5),
-                  //       Icon(
-                  //         viewModel.sortAscending
-                  //             ? Icons.arrow_upward
-                  //             : Icons.arrow_downward,
-                  //         size: 20,
-                  //         color: Colors.black,
-                  //       ),
-                  //     ],
-                  //   ),
+                  Text(col.label,
+                    style: TextStyle(
+                      fontSize: 16.0.responsiveFontSize(context, minFontSize: 12),
+                    ),),
                 ],
               ),
             ),
@@ -119,10 +109,13 @@ class PlayerDetailPage extends ConsumerWidget {
             children: PlayerRecordColumn.values
                 .map((col) =>
                 Expanded(
-                    flex: 1,
+                    flex: col.flex,
                     child: Text(
                       record.valueByColumn(col),
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0.responsiveFontSize(context, minFontSize: 15),
+                      ),
                     )))
                 .toList()
         ));

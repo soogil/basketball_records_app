@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "557524235019",
-    "project_id": "basketball-record-82584",
-    "storage_bucket": "basketball-record-82584.firebasestorage.app"
+    "project_number": "542340777204",
+    "project_id": "iggys-point-ba1c9",
+    "storage_bucket": "iggys-point-ba1c9.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:557524235019:android:5fc1668f43badf204e680e",
+        "mobilesdk_app_id": "1:542340777204:android:dbd21fb1e94c5a45d98aa1",
         "android_client_info": {
-          "package_name": "com.soogil.basketball.record"
+          "package_name": "com.soogil.iggys.iggys_point"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBbLKIxbJCVcb0KlLKSByjzjVJKQhgtz9s"
+          "current_key": "AIzaSyCWUuqK-hh330AXefacu27VWeTebb07pm8"
         }
       ],
       "services": {

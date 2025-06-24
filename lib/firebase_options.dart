@@ -47,29 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBK8zh_WbkOgp3tpTlav1Pyvy7pSUwhCXY',
-    appId: '1:557524235019:web:bd0f8cce7d4734994e680e',
-    messagingSenderId: '557524235019',
-    projectId: 'basketball-record-82584',
-    authDomain: 'basketball-record-82584.firebaseapp.com',
-    storageBucket: 'basketball-record-82584.firebasestorage.app',
-    measurementId: 'G-RYR1X32KKW',
+    apiKey: 'AIzaSyD2JEbNX8lEZ-qDbVOhn5vq9-nCUMQka-8',
+    appId: '1:542340777204:web:4501831daed3aeaed98aa1',
+    messagingSenderId: '542340777204',
+    projectId: 'iggys-point-ba1c9',
+    authDomain: 'iggys-point-ba1c9.firebaseapp.com',
+    storageBucket: 'iggys-point-ba1c9.firebasestorage.app',
+    measurementId: 'G-HK5FPFLHM5',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBbLKIxbJCVcb0KlLKSByjzjVJKQhgtz9s',
-    appId: '1:557524235019:android:5fc1668f43badf204e680e',
-    messagingSenderId: '557524235019',
-    projectId: 'basketball-record-82584',
-    storageBucket: 'basketball-record-82584.firebasestorage.app',
+    apiKey: 'AIzaSyCWUuqK-hh330AXefacu27VWeTebb07pm8',
+    appId: '1:542340777204:android:dbd21fb1e94c5a45d98aa1',
+    messagingSenderId: '542340777204',
+    projectId: 'iggys-point-ba1c9',
+    storageBucket: 'iggys-point-ba1c9.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDcJbfkIZy89HfdkzZPvUuaCgRnzlG5b_8',
-    appId: '1:557524235019:ios:d35c14baad9cfb584e680e',
-    messagingSenderId: '557524235019',
-    projectId: 'basketball-record-82584',
-    storageBucket: 'basketball-record-82584.firebasestorage.app',
-    iosBundleId: 'com.soogil.basketball.record',
+    apiKey: 'AIzaSyBgXLxurNS3rVhnn_3TClhJKRnZo5iAUT0',
+    appId: '1:542340777204:ios:3ca2dc8fd0283e71d98aa1',
+    messagingSenderId: '542340777204',
+    projectId: 'iggys-point-ba1c9',
+    storageBucket: 'iggys-point-ba1c9.firebasestorage.app',
+    iosBundleId: 'com.soogil.iggys.point',
   );
+
 }

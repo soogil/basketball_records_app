@@ -104,4 +104,13 @@ class PlayerListViewModel extends _$PlayerListViewModel {
     }
     return true;
   }
+
+  Future<bool> hasAnyRealRecordOnDate(String date) async {
+    try {
+      return await _fireStoreRepository.hasAnyRealRecordOnDate(date);
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
 }

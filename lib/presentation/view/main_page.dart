@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:go_router/go_router.dart';
 
+final _tapCountProvider = StateProvider<int>((ref) => 0);
 
 class MainPage extends ConsumerWidget {
   const MainPage({super.key});
@@ -17,7 +18,7 @@ class MainPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: _appBar(context, ref),
-      body: _body(ref),
+      body: _body(context, ref),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
       //     ref.read(playerListViewModelProvider.notifier).uploadPlayers();
@@ -28,18 +29,25 @@ class MainPage extends ConsumerWidget {
   }
 
   PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) {
+    final tapCount = ref.watch(_tapCountProvider);
+
     return AppBar(
       toolbarHeight: 70,
       backgroundColor: BRColors.greenB2,
       centerTitle: true,
-      title: const Text(
-        '이기스 포인트',
-        style: TextStyle(
-          fontSize: 25,
-          color: BRColors.white
+      title: GestureDetector(
+        onTap: () {
+          ref.read(_tapCountProvider.notifier).state++;
+        },
+        child: Text(
+          '이기스 포인트',
+          style: TextStyle(
+              fontSize: 24.0.responsiveFontSize(context, minFontSize: 18),
+              color: BRColors.white
+          ),
         ),
       ),
-      actions: [
+      actions: tapCount < 7 ? [] :[
         OutlinedButton(
             style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.black)
@@ -48,8 +56,7 @@ class MainPage extends ConsumerWidget {
               final players = ref.read(playerListViewModelProvider).value?.players ?? [];
 
               onSave(DateTime dateTime, List<TeamInput> teams) async {
-                final viewModel = ref.read(
-                    playerListViewModelProvider.notifier);
+                final viewModel = ref.read(playerListViewModelProvider.notifier);
                 final List<PlayerGameInput> playerInputs = teams
                     .expand((team) => team.players)
                     .toList();
@@ -80,6 +87,7 @@ class MainPage extends ConsumerWidget {
                         context: context,
                         builder: (_) {
                           return AlertDialog(
+                            contentPadding: EdgeInsets.all(30),
                             content: Text(
                               '$date 기록이 삭제 됐습니다.',
                               style: TextStyle(
@@ -102,54 +110,17 @@ class MainPage extends ConsumerWidget {
               }
 
             context.pushNamed(AppPage.recordAdd.name, extra: {
-                'onSave': onSave,
-                'onRemove': onRemove,
+              'onSave': onSave,
+              'onRemove': onRemove,
               'allPlayers': players
               }).then((_) {
-              ref.invalidate(playerListViewModelProvider);
-            });
-              // showDialog(
-              //     context: context,
-              //     builder: (_) {
-              //       final players = ref.read(playerListViewModelProvider).value?.players ?? [];
-              //       return Dialog(
-              //         backgroundColor: BRColors.whiteE8,
-              //         child: PlayerDialog(
-              //           allPlayers: players,
-              //           onSave: (DateTime dateTime, List<TeamInput> teams) async {
-              //             final viewModel = ref.read(
-              //                 playerListViewModelProvider.notifier);
-              //             final List<PlayerGameInput> playerInputs = teams
-              //                 .expand((team) => team.players)
-              //                 .toList();
-              //
-              //             await viewModel.savePlayerRecords(
-              //                 recordDate: '${dateTime.year}-'
-              //                     '${dateTime.month.toString().padLeft(2, '0')}'
-              //                     '-${dateTime.day.toString().padLeft(2, '0')}',
-              //                 playerInputs: playerInputs);
-              //
-              //             ref.invalidate(playerListViewModelProvider);
-              //             Navigator.pop(context);
-              //           },
-              //           onRemove: (DateTime date) async {
-              //             final mainViewModel = ref.read(playerListViewModelProvider.notifier);
-              //
-              //             final bool result = await mainViewModel.removeRecordFromDate(date);
-              //
-              //             if (result) {
-              //
-              //             }
-              //           },
-              //         ),
-              //       );
-              //     }
-              // );
+                ref.invalidate(playerListViewModelProvider);
+              });
             },
             child: Text(
               '기록 추가',
               style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15.0.responsiveFontSize(context, minFontSize: 12),
                   color: Colors.black
               ),
             )
@@ -159,12 +130,12 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  Widget _body(WidgetRef ref) {
+  Widget _body(BuildContext context, WidgetRef ref) {
     final mainViewModel = ref.watch(playerListViewModelProvider);
 
     return mainViewModel.when(
       data: (data) {
-        return _body2(ref, data.players);
+        return _body2(context, ref, data.players);
         // return _playerList(data.players);
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -172,11 +143,11 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  Widget _body2(WidgetRef ref, List<PlayerModel> players) {
+  Widget _body2(BuildContext context, WidgetRef ref, List<PlayerModel> players) {
     return CustomScrollView(
       slivers: [
         SliverStickyHeader(
-          header: _buildHeader(ref),
+          header: _buildHeader(context, ref),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -192,14 +163,14 @@ class MainPage extends ConsumerWidget {
   }
 
   // 컬럼 헤더 UI (고정)
-  Widget _buildHeader(WidgetRef ref) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(playerListViewModelProvider.notifier);
 
     return Row(
       children: PlayerColumn.values.map((col) {
         final isSorted = viewModel.sortColumn == col;
         return Expanded(
-          flex: 1,
+          flex: col.flex,
           child: Container(
             color: BRColors.greenCf,
             height: 50,
@@ -209,7 +180,13 @@ class MainPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text(col.label, textAlign: TextAlign.center,),
+                  Text(
+                    col.label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16.0.responsiveFontSize(context, minFontSize: 12),
+                    ),
+                  ),
                   if (isSorted)
                     Row(
                       children: [
@@ -249,88 +226,25 @@ class MainPage extends ConsumerWidget {
             children: PlayerColumn.values
                 .map((col) =>
                 Expanded(
-                    flex: 1,
+                    flex: col.flex,
                     child: Text(
                       player.valueByColumn(col),
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0.responsiveFontSize(context, minFontSize: 15),
+                      ),
                     )))
                 .toList()
         ));
   }
+}
 
-//   Widget _playerList(List<PlayerModel> players) {
-//     return Consumer(
-//         builder: (context, ref, __) {
-//           final viewModel = ref.watch(playerListViewModelProvider.notifier);
-//           final mainState = ref.watch(playerListViewModelProvider);
-//
-//           return DataTable2(
-//             sortColumnIndex: viewModel.sortColumn?.index,
-//             sortAscending: viewModel.sortAscending,
-//             columnSpacing: 0,
-//             horizontalMargin: 0,
-//             showCheckboxColumn: false,
-//             dividerThickness: 1.5,
-//             dataRowHeight: 40,
-//             columns: PlayerColumn.values.map((col) {
-//               final isSorted = viewModel.sortColumn == col;
-//               return DataColumn(
-//                 label: InkWell(
-//                   onTap: () => viewModel.sortPlayersOnTable(col),
-//                   child: Container(
-//                     color: Color(0xFF89A8B2),
-//                     child: Center(
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         mainAxisSize: MainAxisSize.max,
-//                         children: [
-//                           Text(col.label),
-//                           if (isSorted)
-//                             Row(
-//                               children: [
-//                                 const SizedBox(width: 5),
-//                                 Icon(
-//                                   viewModel.sortAscending
-//                                       ? Icons.arrow_upward
-//                                       : Icons.arrow_downward,
-//                                   size: 20,
-//                                   color: Colors.black,
-//                                 ),
-//                               ],
-//                             ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               );
-//             }).toList(),
-//             rows: List.generate(players.length, (index) {
-//                 final player = players[index];
-//
-//                 return DataRow2(
-//                   // color: WidgetStateProperty.resolveWith<Color?>(
-//                   //       (Set<WidgetState> states) {
-//                   //
-//                   //         final Color color =  index.isEven
-//                   //             ? Color(0xFFF1F0E8)
-//                   //             : Color(0xFFE5E1DA);
-//                   //         if (states.contains(WidgetState.hovered)) {
-//                   //           return null;
-//                   //         }
-//                   //
-//                   //     return color;
-//                   //   },
-//                   // ),
-//                   onSelectChanged: (selected) {
-//                   },
-//                   cells: PlayerColumn.values
-//                       .map((col) => DataCell(
-//                       Center(child: Text(player.valueByColumn(col)))))
-//                       .toList(),
-//                 );}).toList(),
-//           );
-//         }
-//     );
-//   }
+extension ResponsiveFontSize on double {
+  double responsiveFontSize(BuildContext context, {double? minFontSize}) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600 && minFontSize != null) {
+      return minFontSize;
+    }
+    return this;
+  }
 }

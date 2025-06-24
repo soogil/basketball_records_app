@@ -47,5 +47,10 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
   Future<void> removeRecordFromDate(String date) async {
     await _fireStoreApi.removeRecordFromDate(date);
   }
+
+  @override
+  Future<bool> hasAnyRealRecordOnDate(String date) async {
+    return await _fireStoreApi.hasAnyRealRecordOnDate(date);
+  }
 }
 

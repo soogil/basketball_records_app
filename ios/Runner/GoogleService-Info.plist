@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDcJbfkIZy89HfdkzZPvUuaCgRnzlG5b_8</string>
+	<string>AIzaSyBgXLxurNS3rVhnn_3TClhJKRnZo5iAUT0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>557524235019</string>
+	<string>542340777204</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.soogil.basketball.record</string>
+	<string>com.soogil.iggys.point</string>
 	<key>PROJECT_ID</key>
-	<string>basketball-record-82584</string>
+	<string>iggys-point-ba1c9</string>
 	<key>STORAGE_BUCKET</key>
-	<string>basketball-record-82584.firebasestorage.app</string>
+	<string>iggys-point-ba1c9.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:557524235019:ios:d35c14baad9cfb584e680e</string>
+	<string>1:542340777204:ios:3ca2dc8fd0283e71d98aa1</string>
 </dict>
 </plist>

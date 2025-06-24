@@ -9,4 +9,5 @@ abstract class FireStoreRepository {
   Future<List<RecordModel>> getPlayerRecords(String playerId);
   Future<void> updatePlayerRecords(List<PlayerGameInput> player, String recordDate);
   Future<void> removeRecordFromDate(String date);
+  Future<bool> hasAnyRealRecordOnDate(String date);
 }

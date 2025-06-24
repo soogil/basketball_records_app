@@ -1,9 +1,12 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iggys_point/core/theme/br_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // for TextInputFormatter
 import 'package:iggys_point/data/model/player_model.dart';
+import 'package:iggys_point/presentation/view/main_page.dart';
+import 'package:iggys_point/presentation/viewmodel/player_list_view_model.dart';
 
-class RecordAddPage extends StatefulWidget {
+class RecordAddPage extends ConsumerStatefulWidget {
   const RecordAddPage({
     super.key,
     required this.allPlayers,
@@ -16,14 +19,15 @@ class RecordAddPage extends StatefulWidget {
   final Function(DateTime date)? onRemove;
 
   @override
-  State<RecordAddPage> createState() => _RecordAddPageState();
+  ConsumerState<RecordAddPage> createState() => _RecordAddPageState();
 }
 
-class _RecordAddPageState extends State<RecordAddPage> {
+class _RecordAddPageState extends ConsumerState<RecordAddPage> {
   late final List<PlayerModel> availablePlayers;
   final List<List<PlayerGameInput>> teams = [[], []];
   late final List<TeamMeta> teamMetas = [TeamMeta(), TeamMeta()];
   int _selectedTeam = 0;
+  bool _isExistRecord = false;
   DateTime? _selectedDate;
 
   String get selectedDate => _selectedDate == null ? ''
@@ -126,55 +130,46 @@ class _RecordAddPageState extends State<RecordAddPage> {
       toolbarHeight: 70,
       backgroundColor: BRColors.greenB2,
       title: Container(
-        margin: EdgeInsets.only(left: 30),
-        width: 200,
-        height: 50,
-        child: InkWell(
-          onTap: () async {
-            _selectedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2025, 1, 1),
-              lastDate: DateTime.now(),);
-            setState(() {});
-          }, // DatePicker 함수 연결
-          child: Row(
-            children: [
-              Text(
-          _selectedDate == null
-          ? '날짜를 선택 하세요.'
-              : "${_selectedDate?.year}-${_selectedDate?.month
-              .toString().padLeft(2, '0')}-${_selectedDate?.day
-            .toString().padLeft(2, '0')}",
-      style: TextStyle(
-        color: BRColors.white,
-        fontSize: 20,
-      ),),
-              const SizedBox(width: 5,),
-              Icon(Icons.calendar_today, color: BRColors.white, size: 25,)
-          ]
-          ),
-          )
+          margin: EdgeInsets.only(left: 30),
+          width: 200,
+          height: 50,
+          child: InkWell(
+            onTap: () async {
+              _selectedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2025, 1, 1),
+                lastDate: DateTime.now(),);
 
-          // AbsorbPointer(
-          //   child: TextField(
-          //     controller: TextEditingController(
-          //         text: _selectedDate == null
-          //             ? null
-          //             : "${_selectedDate?.year}-${_selectedDate?.month
-          //             .toString().padLeft(2, '0')}-${_selectedDate?.day
-          //             .toString().padLeft(2, '0')}"),
-          //     decoration: InputDecoration(
-          //       hintText: '날짜를 선택하세요',
-          //       suffixIcon: Icon(Icons.calendar_today),
-          //       border: InputBorder.none
-          //     ),
-          //     readOnly: true,
-          //   ),
-          // ),
-        ),
+              if (_selectedDate != null) {
+                final viewModel = ref.read(
+                    playerListViewModelProvider.notifier);
+                _isExistRecord = await viewModel.hasAnyRealRecordOnDate(selectedDate);
+              }
+
+              setState(() {});
+            }, // DatePicker 함수 연결
+            child: Row(
+                children: [
+                  Text(
+                    _selectedDate == null
+                        ? '날짜를 선택 하세요.'
+                        : "${_selectedDate?.year}-${_selectedDate?.month
+                        .toString().padLeft(2, '0')}-${_selectedDate?.day
+                        .toString().padLeft(2, '0')}",
+                    style: TextStyle(
+                      color: BRColors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 5,),
+                  Icon(Icons.calendar_today, color: BRColors.white, size: 25,)
+                ]
+            ),
+          )
+      ),
       actions: [
-        if (_selectedDate != null) Container(
+        if (_selectedDate != null && _isExistRecord) Container(
           margin: EdgeInsets.only(right: 30),
           height: 50,
           width: 200,
@@ -186,12 +181,13 @@ class _RecordAddPageState extends State<RecordAddPage> {
               if (_selectedDate != null && widget.onRemove != null) {
                 showDialog(
                     context: context,
-                  builder: (_) {
+                    builder: (_) {
                       return AlertDialog(
+                        contentPadding: EdgeInsets.all(30),
                         content: Text(
                           '정말 삭제 하시겠습니까?',
                           style: TextStyle(
-                            fontSize: 20
+                              fontSize: 22.0.responsiveFontSize(context, minFontSize: 16,),
                           ),
                         ),
                         actions: [
@@ -201,7 +197,8 @@ class _RecordAddPageState extends State<RecordAddPage> {
                               },
                               child: Text(
                                 '취소',
-                                style: TextStyle(),
+                                style: TextStyle(
+                                  fontSize: 17.0.responsiveFontSize(context, minFontSize: 11,),),
                               )),
                           ElevatedButton(
                               onPressed: () {
@@ -214,7 +211,7 @@ class _RecordAddPageState extends State<RecordAddPage> {
                               )),
                         ],
                       );
-                  }
+                    }
                 );
               }
             },
@@ -459,7 +456,32 @@ class _RecordAddPageState extends State<RecordAddPage> {
           backgroundColor: BRColors.greenCf,
         ),
         onPressed: () {
-          if (_selectedDate != null) {
+          if (_isExistRecord) {
+            showDialog(
+                context: context,
+                builder: (_) {
+                  return AlertDialog(
+                    contentPadding: EdgeInsets.all(30),
+                    content: Text(
+                      '해당 날짜에 기록이 있습니다.\n기록을 삭제하고 저장 해주세요.',
+                      style: TextStyle(
+                          fontSize: 20
+                      ),
+                    ),
+                    actions: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            '확인',
+                            style: TextStyle(),
+                          )),
+                    ],
+                  );
+                }
+            );
+          } else if (_selectedDate != null) {
             final teamInputs = List<TeamInput>.generate(
               teams.length,
                   (i) =>
@@ -474,6 +496,7 @@ class _RecordAddPageState extends State<RecordAddPage> {
                 context: context,
                 builder: (_) {
                   return AlertDialog(
+                    contentPadding: EdgeInsets.all(30),
                     content: Text(
                       '날짜를 선택 하세요.',
                       style: TextStyle(

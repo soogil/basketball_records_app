@@ -87,17 +87,20 @@ extension PlayerColumnExtension on PlayerColumn {
       case PlayerColumn.winScore: return '승점';
       case PlayerColumn.accumulatedScore: return '24년~25년\n누적 합계';
       case PlayerColumn.totalScore: return '총점';
-      case PlayerColumn.attendanceScore: return '출석 점수';
+      case PlayerColumn.attendanceScore: return '출석';
       case PlayerColumn.winRate: return '승률';
     }
   }
 }
 
 enum PlayerColumn {
-  name,
-  totalScore,
-  attendanceScore,
-  winScore,
-  winRate,
-  accumulatedScore,
+  name(150),
+  totalScore(150),
+  attendanceScore(150),
+  winScore(150),
+  winRate(110),
+  accumulatedScore(230);
+
+  const PlayerColumn(this.flex);
+  final int flex;
 }

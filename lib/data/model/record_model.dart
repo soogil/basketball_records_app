@@ -51,7 +51,7 @@ extension PlayerRecordColumnExtension on PlayerRecordColumn {
   String get label {
     switch (this) {
       case PlayerRecordColumn.date: return '날짜';
-      case PlayerRecordColumn.attendanceScore: return '출석 점수';
+      case PlayerRecordColumn.attendanceScore: return '출석';
       case PlayerRecordColumn.totalGames: return '경기 수';
       case PlayerRecordColumn.winGames: return '승리';
       case PlayerRecordColumn.winScore: return '승점';
@@ -61,9 +61,12 @@ extension PlayerRecordColumnExtension on PlayerRecordColumn {
 
 
 enum PlayerRecordColumn {
-  date,
-  attendanceScore,
-  totalGames,
-  winGames,
-  winScore,
+  date(200),
+  attendanceScore(100),
+  totalGames(130),
+  winGames(130),
+  winScore(100);
+
+  const PlayerRecordColumn(this.flex);
+  final int flex;
 }

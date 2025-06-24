@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"basketball-record-82584","appId":"1:557524235019:android:5fc1668f43badf204e680e","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"basketball-record-82584","appId":"1:557524235019:ios:d35c14baad9cfb584e680e","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"basketball-record-82584","configurations":{"android":"1:557524235019:android:5fc1668f43badf204e680e","ios":"1:557524235019:ios:d35c14baad9cfb584e680e","web":"1:557524235019:web:bd0f8cce7d4734994e680e"}}}}}}
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "iggys-point-ba1c9",
+          "configurations": {
+            "android": "1:542340777204:android:dbd21fb1e94c5a45d98aa1",
+            "ios": "1:542340777204:ios:3ca2dc8fd0283e71d98aa1",
+            "web": "1:542340777204:web:4501831daed3aeaed98aa1"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "iggys-point-ba1c9",
+          "appId": "1:542340777204:android:dbd21fb1e94c5a45d98aa1",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "iggys-point-ba1c9",
+          "appId": "1:542340777204:ios:3ca2dc8fd0283e71d98aa1",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  }
+}
