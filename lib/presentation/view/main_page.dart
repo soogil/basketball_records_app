@@ -8,36 +8,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:html' as html;
 
 final _tapCountProvider = StateProvider<int>((ref) => 0);
 
 class MainPage extends ConsumerWidget {
   const MainPage({super.key});
 
+  Future<void> deleteAllCookies() async {
+    final cookies = html.document.cookie?.split(';') ?? [];
+    for (var cookie in cookies) {
+      final eqPos = cookie.indexOf('=');
+      final name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+      html.document.cookie =
+      '$name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+    }
+    html.window.location.reload();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: _appBar(context, ref),
-      body: _body(context, ref),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     ref.read(playerListViewModelProvider.notifier).uploadPlayers();
-      //   },
-      //   child: const Icon(Icons.refresh),
-      // ),
+    return RefreshIndicator(
+      onRefresh: deleteAllCookies,
+      child: Scaffold(
+        body: _body(context, ref),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () {
+        //     ref.read(playerListViewModelProvider.notifier).uploadPlayers();
+        //   },
+        //   child: const Icon(Icons.refresh),
+        // ),
+      ),
     );
   }
 
-  PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) {
+  SliverAppBar _appBar(BuildContext context, WidgetRef ref) {
     final tapCount = ref.watch(_tapCountProvider);
 
-    return AppBar(
+    return SliverAppBar(
       toolbarHeight: 70,
       backgroundColor: BRColors.greenB2,
       centerTitle: true,
       title: GestureDetector(
         onTap: () {
-          ref.read(_tapCountProvider.notifier).state++;
+          if (!isMobile(context)) {
+            ref.read(_tapCountProvider.notifier).state++;
+          }
         },
         child: Text(
           '이기스 포인트',
@@ -146,6 +162,7 @@ class MainPage extends ConsumerWidget {
   Widget _body2(BuildContext context, WidgetRef ref, List<PlayerModel> players) {
     return CustomScrollView(
       slivers: [
+        _appBar(context, ref),
         SliverStickyHeader(
           header: _buildHeader(context, ref),
           sliver: SliverList(
@@ -190,12 +207,12 @@ class MainPage extends ConsumerWidget {
                   if (isSorted)
                     Row(
                       children: [
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 2),
                         Icon(
                           viewModel.sortAscending
                               ? Icons.arrow_upward
                               : Icons.arrow_downward,
-                          size: 20,
+                          size: 20.0.responsiveFontSize(context, minFontSize: 13),
                           color: Colors.black,
                         ),
                       ],
@@ -231,11 +248,24 @@ class MainPage extends ConsumerWidget {
                       player.valueByColumn(col),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 18.0.responsiveFontSize(context, minFontSize: 15),
+                        fontSize: 18.0.responsiveFontSize(context, minFontSize: 13),
                       ),
                     )))
                 .toList()
         ));
+  }
+
+  bool isMobile(BuildContext context) {
+    return MediaQuery.of(context).size.width < 600;
+  }
+
+  bool isTablet(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    return width >= 600 && width < 1200;
+  }
+
+  bool isDesktop(BuildContext context) {
+    return MediaQuery.of(context).size.width >= 1200;
   }
 }
 

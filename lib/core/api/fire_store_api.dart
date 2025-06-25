@@ -14,24 +14,24 @@ final fireStoreApiProvider = Provider<FireStoreApi>((ref) => FireStoreApi());
 class FireStoreApi {
 
   Future uploadPlayersToFireStore() async {
-    //backup data
-    final playersRef = FirebaseFirestore.instance.collection('playerRecords');
-    final snapshot = await playersRef.get();
-
-    Map<String, dynamic> allRecords = {};
-    for (final doc in snapshot.docs) {
-      allRecords[doc.id] = doc.data();
-    }
-
-    String jsonString = jsonEncode(allRecords);
-
-    final bytes = utf8.encode(jsonString);
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute("download", "players_backup.json")
-      ..click();
-    html.Url.revokeObjectUrl(url);
+    //backup data download
+    // final playersRef = FirebaseFirestore.instance.collection('playerRecords');
+    // final snapshot = await playersRef.get();
+    //
+    // Map<String, dynamic> allRecords = {};
+    // for (final doc in snapshot.docs) {
+    //   allRecords[doc.id] = doc.data();
+    // }
+    //
+    // String jsonString = jsonEncode(allRecords);
+    //
+    // final bytes = utf8.encode(jsonString);
+    // final blob = html.Blob([bytes]);
+    // final url = html.Url.createObjectUrlFromBlob(blob);
+    // final anchor = html.AnchorElement(href: url)
+    //   ..setAttribute("download", "players_backup.json")
+    //   ..click();
+    // html.Url.revokeObjectUrl(url);
 
     //upload backup Data
     //   final playersJson = await rootBundle.loadString('assets/players_backup.json');
@@ -115,7 +115,7 @@ class FireStoreApi {
       }
 
       // 3. batch로 기록/누적치 갱신 추가
-      batch.set(recordRef, {'records': playerRecords});
+      // batch.set(recordRef, {'records': playerRecords});
       batch.update(playerRef, {
         'totalScore': FieldValue.increment(playerInput.attendanceScore + playerInput.winScore),
         'attendanceScore': FieldValue.increment(playerInput.attendanceScore),

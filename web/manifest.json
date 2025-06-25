@@ -2,7 +2,7 @@
     "name": "iggys_point",
     "short_name": "iggys_point",
     "start_url": ".",
-    "display": "standalone",
+    "display": "browser",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "A new Flutter project.",
