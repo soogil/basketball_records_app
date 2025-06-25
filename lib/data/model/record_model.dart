@@ -39,7 +39,7 @@ extension RecordModelPresentation on RecordModel {
         return '$attendanceScore점';
       case PlayerRecordColumn.totalGames:
         return '$totalGames경기';
-      case PlayerRecordColumn.winGames:
+      case PlayerRecordColumn.winningGames:
         return '$winningGames경기';
       case PlayerRecordColumn.winScore:
         return '$winScore점';
@@ -53,7 +53,7 @@ extension PlayerRecordColumnExtension on PlayerRecordColumn {
       case PlayerRecordColumn.date: return '날짜';
       case PlayerRecordColumn.attendanceScore: return '출석';
       case PlayerRecordColumn.totalGames: return '경기 수';
-      case PlayerRecordColumn.winGames: return '승리';
+      case PlayerRecordColumn.winningGames: return '승리';
       case PlayerRecordColumn.winScore: return '승점';
     }
   }
@@ -64,7 +64,7 @@ enum PlayerRecordColumn {
   date(200),
   attendanceScore(100),
   totalGames(130),
-  winGames(130),
+  winningGames(130),
   winScore(100);
 
   const PlayerRecordColumn(this.flex);

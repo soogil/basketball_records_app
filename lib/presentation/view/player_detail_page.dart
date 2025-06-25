@@ -47,20 +47,27 @@ class PlayerDetailPage extends ConsumerWidget {
   }
 
   Widget _body(BuildContext context, DateRecords state, WidgetRef ref) {
-    return CustomScrollView(
-      slivers: [
-        SliverStickyHeader(
-          header: _buildHeader(context, ref),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final record = state.records[index];
-                return _buildTableRow(record, index, context);
-              },
-              childCount: state.records.length,
-            ),
+    return Column(
+      children: [
+        Expanded(
+          child: CustomScrollView(
+            slivers: [
+              SliverStickyHeader(
+                header: _buildHeader(context, ref),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      final record = state.records[index];
+                      return _buildTableRow(record, index, context);
+                    },
+                    childCount: state.records.length,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        _totalState(context, state.records),
       ],
     );
   }
@@ -120,4 +127,66 @@ class PlayerDetailPage extends ConsumerWidget {
                 .toList()
         ));
   }
+
+  Widget _totalState(BuildContext context, List<RecordModel> records) {
+    // 각 컬럼별 합계 계산
+    Map<PlayerRecordColumn, num> totals = {};
+    for (final col in PlayerRecordColumn.values) {
+      num sum;
+      switch (col) {
+        case PlayerRecordColumn.attendanceScore:
+          sum = records.fold<int>(0, (prev, r) => prev + r.attendanceScore);
+          break;
+        case PlayerRecordColumn.winScore:
+          sum = records.fold<int>(0, (prev, r) => prev + r.winScore);
+          break;
+        case PlayerRecordColumn.winningGames:
+          sum = records.fold<double>(0.0, (prev, r) => prev + r.winningGames);
+          break;
+        case PlayerRecordColumn.totalGames:
+          sum = records.fold<int>(0, (prev, r) => prev + r.totalGames);
+          break;
+        default:
+          sum = 0; // 날짜 등은 합계 없음
+      }
+      totals[col] = sum;
+    }
+
+    return Container(
+      height: 50,
+      color: BRColors.greenB2,
+      child: Row(
+        children: PlayerRecordColumn.values.map((col) {
+          String display = '';
+          if (col == PlayerRecordColumn.date) {
+            display = '합계';
+          } else if (col == PlayerRecordColumn.winningGames) {
+            num value = totals[col]!;
+            if (value % 1 == 0) {
+              display = '${value.toInt()}경기';
+            } else {
+              display = '${value.toStringAsFixed(1)}경기';
+            }
+          } else if (col == PlayerRecordColumn.totalGames) {
+            display = '${totals[col]!.toString()}경기';
+          } else if (col == PlayerRecordColumn.winScore) {
+            display = '${totals[col]!.toString()}점';
+          } else if (col == PlayerRecordColumn.attendanceScore) {
+            display = '${totals[col]!.toString()}점';
+          }
+          return Expanded(
+            flex: col.flex,
+            child: Text(
+              display,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.0.responsiveFontSize(context, minFontSize: 15),
+                color: Colors.white,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+    }
 }
