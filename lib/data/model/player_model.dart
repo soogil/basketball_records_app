@@ -15,6 +15,7 @@ class PlayerModel with _$PlayerModel {
     required this.winScore,
     required this.seasonTotalGames,
     required this.seasonTotalWins,
+    required this.scoreAchieved,
   });
 
   @override
@@ -33,6 +34,8 @@ class PlayerModel with _$PlayerModel {
   final int seasonTotalGames;
   @override
   final int accumulatedScore;
+  @override
+  final bool scoreAchieved;
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) => _$PlayerModelFromJson(json);
 
@@ -51,6 +54,7 @@ class PlayerModel with _$PlayerModel {
         winScore: json['winScore'] as int,
         seasonTotalWins: (json['seasonTotalWins'] as num).toDouble(),
         seasonTotalGames: json['seasonTotalGames'] as int,
+        scoreAchieved: json['scoreAchieved'] as bool,
       );
 }
 

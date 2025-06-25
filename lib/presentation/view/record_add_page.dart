@@ -543,9 +543,9 @@ class PlayerGameInput {
         winGamesController = TextEditingController(),
         winScoreController = TextEditingController();
 
-  num get winScore => num.parse(winScoreController.text);
-  num get winGames => num.parse(winGamesController.text);
-  num get totalGames => num.parse(totalGamesController.text);
+  int get winScore => int.parse(winScoreController.text);
+  int get winGames => int.parse(winGamesController.text);
+  int get totalGames => int.parse(totalGamesController.text);
   String get playerId => player.id;
   
   void dispose() {

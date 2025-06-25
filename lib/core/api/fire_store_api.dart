@@ -1,10 +1,6 @@
-import 'dart:convert';
-
-import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:iggys_point/data/model/record_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iggys_point/presentation/view/record_add_page.dart';
 
@@ -14,6 +10,13 @@ final fireStoreApiProvider = Provider<FireStoreApi>((ref) => FireStoreApi());
 class FireStoreApi {
 
   Future uploadPlayersToFireStore() async {
+    final playersCollection = FirebaseFirestore.instance.collection('players');
+    final querySnapshot = await playersCollection.get();
+
+    for (var doc in querySnapshot.docs) {
+      await doc.reference.update({'scoreAchieved': false});
+    }
+
     //backup data download
     // final playersRef = FirebaseFirestore.instance.collection('playerRecords');
     // final snapshot = await playersRef.get();
@@ -115,7 +118,7 @@ class FireStoreApi {
       }
 
       // 3. batch로 기록/누적치 갱신 추가
-      // batch.set(recordRef, {'records': playerRecords});
+      batch.set(recordRef, {'records': playerRecords});
       batch.update(playerRef, {
         'totalScore': FieldValue.increment(playerInput.attendanceScore + playerInput.winScore),
         'attendanceScore': FieldValue.increment(playerInput.attendanceScore),
@@ -123,6 +126,9 @@ class FireStoreApi {
         'seasonTotalWins': FieldValue.increment(playerInput.winGames),
         'seasonTotalGames': FieldValue.increment(playerInput.totalGames),
         'accumulatedScore': FieldValue.increment(playerInput.attendanceScore + playerInput.winScore),
+        'scoreAchieved': _isMilestonePassed(
+            playerInput.player.accumulatedScore,
+            playerInput.player.accumulatedScore + playerInput.attendanceScore + playerInput.winScore),
       });
     }
 
@@ -133,6 +139,12 @@ class FireStoreApi {
       debugPrint('Batch update failed: $e');
       rethrow;
     }
+  }
+
+  bool _isMilestonePassed(int before, int after, {int milestone = 300}) {
+    int beforeSection = before ~/ milestone;
+    int afterSection = after ~/ milestone;
+    return beforeSection < afterSection;
   }
 
   Future<void> removeRecordFromDate(String targetDate) async {
@@ -167,6 +179,7 @@ class FireStoreApi {
           'seasonTotalWins': FieldValue.increment(-(r['winningGames'] ?? 0)),
           'seasonTotalGames': FieldValue.increment(-(r['totalGames'] ?? 0)),
           'accumulatedScore': FieldValue.increment(-(r['attendanceScore'] ?? 0) - (r['winScore'] ?? 0)),
+          'scoreAchieved': false,
         });
       }
     }

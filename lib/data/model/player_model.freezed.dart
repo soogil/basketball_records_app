@@ -23,6 +23,7 @@ mixin _$PlayerModel {
   double get seasonTotalWins;
   int get seasonTotalGames;
   int get accumulatedScore;
+  bool get scoreAchieved;
 
   /// Create a copy of PlayerModel
   /// with the given fields replaced by the non-null parameter values.
@@ -49,7 +50,9 @@ mixin _$PlayerModel {
             (identical(other.seasonTotalGames, seasonTotalGames) ||
                 other.seasonTotalGames == seasonTotalGames) &&
             (identical(other.accumulatedScore, accumulatedScore) ||
-                other.accumulatedScore == accumulatedScore));
+                other.accumulatedScore == accumulatedScore) &&
+            (identical(other.scoreAchieved, scoreAchieved) ||
+                other.scoreAchieved == scoreAchieved));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -63,11 +66,12 @@ mixin _$PlayerModel {
       winScore,
       seasonTotalWins,
       seasonTotalGames,
-      accumulatedScore);
+      accumulatedScore,
+      scoreAchieved);
 
   @override
   String toString() {
-    return 'PlayerModel(id: $id, name: $name, totalScore: $totalScore, attendanceScore: $attendanceScore, winScore: $winScore, seasonTotalWins: $seasonTotalWins, seasonTotalGames: $seasonTotalGames, accumulatedScore: $accumulatedScore)';
+    return 'PlayerModel(id: $id, name: $name, totalScore: $totalScore, attendanceScore: $attendanceScore, winScore: $winScore, seasonTotalWins: $seasonTotalWins, seasonTotalGames: $seasonTotalGames, accumulatedScore: $accumulatedScore, scoreAchieved: $scoreAchieved)';
   }
 }
 
@@ -85,7 +89,8 @@ abstract mixin class $PlayerModelCopyWith<$Res> {
       int accumulatedScore,
       int winScore,
       int seasonTotalGames,
-      double seasonTotalWins});
+      double seasonTotalWins,
+      bool scoreAchieved});
 }
 
 /// @nodoc
@@ -108,6 +113,7 @@ class _$PlayerModelCopyWithImpl<$Res> implements $PlayerModelCopyWith<$Res> {
     Object? winScore = null,
     Object? seasonTotalGames = null,
     Object? seasonTotalWins = null,
+    Object? scoreAchieved = null,
   }) {
     return _then(PlayerModel(
       id: null == id
@@ -142,6 +148,10 @@ class _$PlayerModelCopyWithImpl<$Res> implements $PlayerModelCopyWith<$Res> {
           ? _self.seasonTotalWins
           : seasonTotalWins // ignore: cast_nullable_to_non_nullable
               as double,
+      scoreAchieved: null == scoreAchieved
+          ? _self.scoreAchieved
+          : scoreAchieved // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

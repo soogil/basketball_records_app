@@ -34,7 +34,8 @@ class MainPage extends ConsumerWidget {
         body: _body(context, ref),
         // floatingActionButton: FloatingActionButton(
         //   onPressed: () {
-        //     ref.read(playerListViewModelProvider.notifier).uploadPlayers();
+        //     final achieve = isMilestonePassed(620,640);
+        //     print('achieve isMilestonePassed $achieve');
         //   },
         //   child: const Icon(Icons.refresh),
         // ),
@@ -241,15 +242,26 @@ class MainPage extends ConsumerWidget {
         title: Row(
             mainAxisSize: MainAxisSize.max,
             children: PlayerColumn.values
-                .map((col) =>
-                Expanded(
+                .map((col) => Expanded(
                     flex: col.flex,
-                    child: Text(
-                      player.valueByColumn(col),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18.0.responsiveFontSize(context, minFontSize: 13),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          player.valueByColumn(col),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18.0.responsiveFontSize(context, minFontSize: 13),
+                          ),
+                        ),
+                        if (col == PlayerColumn.accumulatedScore && player.scoreAchieved)
+                          Row(
+                            children: [
+                              const SizedBox(width: 5),
+                              Icon(Icons.emoji_events, color: Colors.amber,),
+                          ],
+                        )
+                      ],
                     )))
                 .toList()
         ));

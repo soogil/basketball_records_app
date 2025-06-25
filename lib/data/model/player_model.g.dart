@@ -15,6 +15,7 @@ PlayerModel _$PlayerModelFromJson(Map<String, dynamic> json) => PlayerModel(
       winScore: (json['winScore'] as num).toInt(),
       seasonTotalGames: (json['seasonTotalGames'] as num).toInt(),
       seasonTotalWins: (json['seasonTotalWins'] as num).toDouble(),
+      scoreAchieved: json['scoreAchieved'] as bool,
     );
 
 Map<String, dynamic> _$PlayerModelToJson(PlayerModel instance) =>
@@ -27,4 +28,5 @@ Map<String, dynamic> _$PlayerModelToJson(PlayerModel instance) =>
       'seasonTotalWins': instance.seasonTotalWins,
       'seasonTotalGames': instance.seasonTotalGames,
       'accumulatedScore': instance.accumulatedScore,
+      'scoreAchieved': instance.scoreAchieved,
     };
