@@ -251,6 +251,12 @@ class MainPage extends ConsumerWidget {
                           player.valueByColumn(col),
                           textAlign: TextAlign.center,
                           style: TextStyle(
+                            color: col == PlayerColumn.accumulatedScore
+                                ? player.accumulatedScoreColor
+                                : BRColors.black,
+                            fontWeight: col == PlayerColumn.accumulatedScore
+                                ? FontWeight.bold
+                                : FontWeight.normal ,
                             fontSize: 18.0.responsiveFontSize(context, minFontSize: 13),
                           ),
                         ),

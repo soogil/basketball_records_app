@@ -27,7 +27,7 @@ class BasketballRecordsApp extends ConsumerWidget {
       designSize: Size(1440, 1024),
       builder: (_, __) {
         return MaterialApp.router(
-          title: 'Flutter Demo',
+          title: 'IGGYS Point',
           debugShowCheckedModeBanner: false,
           routerConfig: router,
           theme: ThemeData(

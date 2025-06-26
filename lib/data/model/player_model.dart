@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:iggys_point/core/theme/br_color.dart';
 
 part 'player_model.freezed.dart';
 part 'player_model.g.dart';
@@ -76,6 +78,24 @@ extension PlayerModelPresentation on PlayerModel {
             ? '0%'
             : '${((seasonTotalWins / seasonTotalGames) * 100).toStringAsFixed(0)}%';
     }
+  }
+
+  Color get accumulatedScoreColor {
+    if (accumulatedScore > 1800) {
+      return Color(0xFF5C2FC2);
+    } else if (accumulatedScore > 1500) {
+      return Color(0xFFB33791);
+    } else if (accumulatedScore > 1200) {
+      return Color(0xFF362FD9);
+    } else if (accumulatedScore > 900) {
+      return Color(0xFF40A578);
+    } else if (accumulatedScore > 600) {
+      return Color(0xFFFF7601);
+    } else if (accumulatedScore > 300) {
+      return Color(0xFFE52020);
+    }
+
+    return BRColors.black;
   }
 
   double get winRate =>
