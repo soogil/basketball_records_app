@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iggys_point/core/router/app_pages.dart';
 import 'package:iggys_point/core/theme/br_color.dart';
 import 'package:iggys_point/data/model/player_model.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 
 final _tapCountProvider = StateProvider<int>((ref) => 0);
 
@@ -16,14 +17,14 @@ class MainPage extends ConsumerWidget {
   const MainPage({super.key});
 
   Future<void> deleteAllCookies() async {
-    final cookies = html.document.cookie?.split(';') ?? [];
+    final cookies = web.document.cookie.split(';');
     for (var cookie in cookies) {
       final eqPos = cookie.indexOf('=');
       final name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-      html.document.cookie =
+      web.document.cookie =
       '$name=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
     }
-    html.window.location.reload();
+    web.window.location.reload();
   }
 
   @override
@@ -291,7 +292,7 @@ extension ResponsiveFontSize on double {
   double responsiveFontSize(BuildContext context, {double? minFontSize}) {
     final width = MediaQuery.of(context).size.width;
     if (width < 600 && minFontSize != null) {
-      return minFontSize;
+      return minFontSize.sp;
     }
     return this;
   }
