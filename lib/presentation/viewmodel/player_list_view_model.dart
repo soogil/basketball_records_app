@@ -92,7 +92,7 @@ class PlayerListViewModel extends _$PlayerListViewModel {
     required String recordDate,
     required List<PlayerGameInput> playerInputs,
   }) async {
-    await _fireStoreRepository.updatePlayerRecords(playerInputs, recordDate);
+    await _fireStoreRepository.updatePlayerRecords(recordDate, playerInputs);
   }
 
   Future<bool> removeRecordFromDate(String date) async {

@@ -39,8 +39,8 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
   }
 
   @override
-  Future<void> updatePlayerRecords(List<PlayerGameInput> playerInputs, String recordDate ) async {
-    await _fireStoreApi.updatePlayerRecords(playerInputs, recordDate);
+  Future<void> updatePlayerRecords(String recordDate, List<PlayerGameInput> playerInputs) async {
+    await _fireStoreApi.updatePlayerRecords(recordDate, playerInputs);
   }
 
   @override

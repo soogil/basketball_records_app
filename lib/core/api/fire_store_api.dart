@@ -1,24 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:iggys_point/data/model/record_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iggys_point/presentation/view/record_add_page.dart';
 
-
 final fireStoreApiProvider = Provider<FireStoreApi>((ref) => FireStoreApi());
 
 class FireStoreApi {
 
   Future uploadPlayersToFireStore() async {
-    final playersCollection = FirebaseFirestore.instance.collection('players');
-    final querySnapshot = await playersCollection.get();
-
-    for (var doc in querySnapshot.docs) {
-      await doc.reference.update({'scoreAchieved': false});
-    }
+    // final playersCollection = FirebaseFirestore.instance.collection('players');
+    // final querySnapshot = await playersCollection.get();
+    //
+    // for (var doc in querySnapshot.docs) {
+    //   await doc.reference.update({'scoreAchieved': false});
+    // }
 
     //backup data download
-    // final playersRef = FirebaseFirestore.instance.collection('playerRecords');
+    // final playersRef = FirebaseFirestore.instance.collection('players');
     // final snapshot = await playersRef.get();
     //
     // Map<String, dynamic> allRecords = {};
@@ -85,8 +86,8 @@ class FireStoreApi {
   }
 
   Future<void> updatePlayerRecords(
-      List<PlayerGameInput> playerInputs,
-      String recordDate) async {
+      String recordDate,
+      List<PlayerGameInput> playerInputs) async {
     final firestore = FirebaseFirestore.instance;
     final batch = firestore.batch();
 

@@ -35,8 +35,9 @@ class MainPage extends ConsumerWidget {
         body: _body(context, ref),
         // floatingActionButton: FloatingActionButton(
         //   onPressed: () {
-        //     final achieve = isMilestonePassed(620,640);
-        //     print('achieve isMilestonePassed $achieve');
+        //     final viewmodel = ref.read(playerListViewModelProvider.notifier);
+        //
+        //     viewmodel.uploadPlayers();
         //   },
         //   child: const Icon(Icons.refresh),
         // ),
@@ -73,17 +74,28 @@ class MainPage extends ConsumerWidget {
             onPressed: () {
               final players = ref.read(playerListViewModelProvider).value?.players ?? [];
 
-              onSave(DateTime dateTime, List<TeamInput> teams) async {
+              onSave(DateTime dateTime, List<TeamInput> teams, List<PlayerModel> nonAttendantPlayers) async {
                 final viewModel = ref.read(playerListViewModelProvider.notifier);
                 final List<PlayerGameInput> playerInputs = teams
                     .expand((team) => team.players)
                     .toList();
 
+                final List<PlayerGameInput> absentInputs = nonAttendantPlayers
+                    .map((player) => PlayerGameInput(
+                  player: player,
+                  attendanceScore: 0,
+                )).toList();
+
+                final List<PlayerGameInput> allPlayers = [
+                  ...playerInputs,
+                  ...absentInputs
+                ];
+
                 await viewModel.savePlayerRecords(
                     recordDate: '${dateTime.year}-'
                         '${dateTime.month.toString().padLeft(2, '0')}'
                         '-${dateTime.day.toString().padLeft(2, '0')}',
-                    playerInputs: playerInputs);
+                    playerInputs: allPlayers,);
 
                 if (context.mounted) {
                   Navigator.pop(context);

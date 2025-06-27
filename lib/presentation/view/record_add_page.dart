@@ -15,7 +15,7 @@ class RecordAddPage extends ConsumerStatefulWidget {
   });
 
   final List<PlayerModel> allPlayers;
-  final Function(DateTime selectedDate, List<TeamInput>) onSave;
+  final Function(DateTime selectedDate, List<TeamInput>, List<PlayerModel>) onSave;
   final Function(DateTime date)? onRemove;
 
   @override
@@ -490,7 +490,7 @@ class _RecordAddPageState extends ConsumerState<RecordAddPage> {
                     players: teams[i],
                   ),
             );
-            widget.onSave(_selectedDate!, teamInputs);
+            widget.onSave(_selectedDate!, teamInputs, availablePlayers);
           } else {
             showDialog(
                 context: context,
@@ -539,9 +539,9 @@ class PlayerGameInput {
   PlayerGameInput({
     required this.player,
     this.attendanceScore = 10,
-  })  : totalGamesController = TextEditingController(),
-        winGamesController = TextEditingController(),
-        winScoreController = TextEditingController();
+  })  : totalGamesController = TextEditingController(text: '0'),
+        winGamesController = TextEditingController(text: '0'),
+        winScoreController = TextEditingController(text: '0');
 
   int get winScore => int.parse(winScoreController.text);
   int get winGames => int.parse(winGamesController.text);
