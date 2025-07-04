@@ -71,7 +71,7 @@ class MainPage extends ConsumerWidget {
           ),
         ),
       ),
-      actions: tapCount > 7 ? [] :[
+      actions: tapCount < 7 ? [] :[
         OutlinedButton(
           style: OutlinedButton.styleFrom(
               side: BorderSide(color: Colors.white)),
