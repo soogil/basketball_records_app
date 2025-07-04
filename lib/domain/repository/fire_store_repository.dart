@@ -4,6 +4,8 @@ import 'package:iggys_point/presentation/view/record_add_page.dart';
 
 
 abstract class FireStoreRepository {
+  Future<void> addPlayer(String name);
+  Future<void> removePlayer(String playerId);
   Future<void> uploadPlayers();
   Future<List<PlayerModel>> getPlayers();
   Future<List<RecordModel>> getPlayerRecords(String playerId);

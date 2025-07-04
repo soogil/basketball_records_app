@@ -21,4 +21,8 @@ class DateRecordsViewModel extends _$DateRecordsViewModel {
 
     return DateRecords(records: records);
   }
+
+  Future removePlayer(String playerId) async {
+    await _fireStoreRepository.removePlayer(playerId);
+  }
 }

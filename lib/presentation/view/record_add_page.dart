@@ -207,7 +207,9 @@ class _RecordAddPageState extends ConsumerState<RecordAddPage> {
                               },
                               child: Text(
                                 '확인',
-                                style: TextStyle(),
+                                style: TextStyle(
+                                  fontSize: 17.0.responsiveFontSize(context, minFontSize: 11,),
+                                ),
                               )),
                         ],
                       );

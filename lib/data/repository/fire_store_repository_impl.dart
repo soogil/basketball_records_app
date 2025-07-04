@@ -52,5 +52,15 @@ class FireStoreRepositoryImpl extends FireStoreRepository {
   Future<bool> hasAnyRealRecordOnDate(String date) async {
     return await _fireStoreApi.hasAnyRealRecordOnDate(date);
   }
+
+  @override
+  Future<void> addPlayer(String name) async {
+    await _fireStoreApi.addPlayer(name);
+  }
+
+  @override
+  Future<void> removePlayer(String playerId) async {
+    await _fireStoreApi.removePlayer(playerId);
+  }
 }
 

@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
+import 'package:iggys_point/data/model/player_model.dart';
 import 'package:iggys_point/data/model/record_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,16 +84,52 @@ class FireStoreApi {
     return data['records'];
   }
 
+  Future<void> addPlayer(String name) async {
+    final fireStore = FirebaseFirestore.instance;
+    final batch = fireStore.batch();
+    final playerRef = FirebaseFirestore.instance.collection('players').doc();
+    final playerRecordsRef = FirebaseFirestore.instance.collection('playerRecords').doc();
+    final player = PlayerModel(
+      id: playerRef.id,
+      name: name,
+      totalScore: 0,
+      attendanceScore: 0,
+      accumulatedScore: 0,
+      winScore: 0,
+      seasonTotalGames: 0,
+      seasonTotalWins: 0.0,
+      scoreAchieved: false,
+    );
+
+    batch.set(playerRef, player.toJson());
+    batch.set(playerRecordsRef, {'records': []});
+
+    await batch.commit();
+  }
+
+  Future<void> removePlayer(String playerId) async {
+    final fireStore = FirebaseFirestore.instance;
+    final batch = fireStore.batch();
+
+    final playerRef = fireStore.collection('players').doc(playerId);
+    final playerRecordsRef = fireStore.collection('playerRecords').doc(playerId);
+
+    batch.delete(playerRef);
+    batch.delete(playerRecordsRef);
+
+    await batch.commit();
+  }
+
   Future<void> updatePlayerRecords(
       String recordDate,
       List<PlayerGameInput> playerInputs) async {
-    final firestore = FirebaseFirestore.instance;
-    final batch = firestore.batch();
+    final fireStore = FirebaseFirestore.instance;
+    final batch = fireStore.batch();
 
     for (final playerInput in playerInputs) {
       final playerId = playerInput.playerId;
-      final recordRef = firestore.collection('playerRecords').doc(playerId);
-      final playerRef = firestore.collection('players').doc(playerId);
+      final recordRef = fireStore.collection('playerRecords').doc(playerId);
+      final playerRef = fireStore.collection('players').doc(playerId);
 
       // 1. RecordModel 생성 (각 선수의 해당 날짜 기록)
       final recordModel = RecordModel(

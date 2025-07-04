@@ -12,6 +12,10 @@ import 'package:go_router/go_router.dart';
 import 'package:web/web.dart' as web;
 
 final _tapCountProvider = StateProvider<int>((ref) => 0);
+final isMobileProvider = Provider.family<bool, BuildContext>((ref, context) {
+  return MediaQuery.of(context).size.width < 600;
+});
+
 
 class MainPage extends ConsumerWidget {
   const MainPage({super.key});
@@ -47,6 +51,7 @@ class MainPage extends ConsumerWidget {
 
   SliverAppBar _appBar(BuildContext context, WidgetRef ref) {
     final tapCount = ref.watch(_tapCountProvider);
+    final isMobile = ref.watch(isMobileProvider(context));
 
     return SliverAppBar(
       toolbarHeight: 70,
@@ -54,7 +59,7 @@ class MainPage extends ConsumerWidget {
       centerTitle: true,
       title: GestureDetector(
         onTap: () {
-          if (!isMobile(context)) {
+          if (!isMobile) {
             ref.read(_tapCountProvider.notifier).state++;
           }
         },
@@ -66,11 +71,32 @@ class MainPage extends ConsumerWidget {
           ),
         ),
       ),
-      actions: tapCount < 7 ? [] :[
+      actions: tapCount > 7 ? [] :[
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.white)),
+          onPressed: () async {
+            final String? name = await showPlayerNameDialog(context);
+
+            if (name?.isNotEmpty ?? false) {
+              final playerViewModel = ref.read(playerListViewModelProvider.notifier);
+              await playerViewModel.addPlayer(name!).then((_) {
+                ref.invalidate(playerListViewModelProvider);
+              });
+            }
+          },
+          child: Text(
+            '선수 추가',
+            style: TextStyle(
+                fontSize: 15.0.responsiveFontSize(context, minFontSize: 12),
+                color: Colors.white
+            ),
+          ),
+        ),
+        SizedBox(width: 10.0.responsiveFontSize(context, minFontSize: 8),),
         OutlinedButton(
             style: OutlinedButton.styleFrom(
-                side: BorderSide(color: Colors.black)
-            ),
+                side: BorderSide(color: Colors.white)),
             onPressed: () {
               final players = ref.read(playerListViewModelProvider).value?.players ?? [];
 
@@ -151,12 +177,45 @@ class MainPage extends ConsumerWidget {
               '기록 추가',
               style: TextStyle(
                   fontSize: 15.0.responsiveFontSize(context, minFontSize: 12),
-                  color: Colors.black
+                  color: Colors.white
               ),
             )
         ),
         const SizedBox(width: 50,),
       ],
+    );
+  }
+
+  Future<String?> showPlayerNameDialog(BuildContext context) {
+    final controller = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('선수 이름 입력'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(hintText: '이름을 입력하세요'),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // 취소
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                final name = controller.text.trim();
+                if (name.isNotEmpty) {
+                  Navigator.of(context).pop(name); // 입력값 반환
+                }
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -183,7 +242,7 @@ class MainPage extends ConsumerWidget {
             delegate: SliverChildBuilderDelegate(
                   (context, index) {
                 final player = players[index];
-                return _buildTableRow(player, index, context);
+                return _buildTableRow(context, ref, player, index);
               },
               childCount: players.length,
             ),
@@ -193,7 +252,6 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  // 컬럼 헤더 UI (고정)
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final viewModel = ref.watch(playerListViewModelProvider.notifier);
 
@@ -241,7 +299,7 @@ class MainPage extends ConsumerWidget {
   }
 
   // 데이터 Row
-  Widget _buildTableRow(PlayerModel player, int index, BuildContext context) {
+  Widget _buildTableRow(BuildContext context, WidgetRef ref, PlayerModel player, int index) {
     final isEven = index.isEven;
 
     return ListTile(
@@ -250,6 +308,10 @@ class MainPage extends ConsumerWidget {
         onTap: () => context.pushNamed(AppPage.playerDetail.name, extra: {
           'playerId': player.id,
           'playerName': player.name,
+        }).then((refresh) {
+          if ((refresh as bool?) ?? false) {
+            ref.invalidate(playerListViewModelProvider);
+          }
         }),
         tileColor: isEven ? BRColors.greyDa : BRColors.whiteE8,
         title: Row(
@@ -284,19 +346,6 @@ class MainPage extends ConsumerWidget {
                     )))
                 .toList()
         ));
-  }
-
-  bool isMobile(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
-  }
-
-  bool isTablet(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    return width >= 600 && width < 1200;
-  }
-
-  bool isDesktop(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 1200;
   }
 }
 

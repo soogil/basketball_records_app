@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 
+final _tapCountProvider = StateProvider<int>((ref) => 0);
+
 class PlayerDetailPage extends ConsumerWidget {
   const PlayerDetailPage({super.key,
     required this.playerId,
@@ -21,7 +23,7 @@ class PlayerDetailPage extends ConsumerWidget {
     final recordsState = ref.watch(dateRecordsViewModelProvider(playerId));
 
     return Scaffold(
-      appBar: _appBar(context),
+      appBar: _appBar(context, ref),
       body: recordsState.when(
           data: (data) => _body(context, data, ref),
           error: (_, e) => Text(e.toString()),
@@ -31,18 +33,89 @@ class PlayerDetailPage extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _appBar(BuildContext context) {
+  PreferredSizeWidget _appBar(BuildContext context, WidgetRef ref) {
+    final tapCount = ref.watch(_tapCountProvider);
+    final isMobile = ref.watch(isMobileProvider(context));
+
     return AppBar(
       toolbarHeight: 70,
       centerTitle: true,
       backgroundColor: BRColors.greenB2,
-      title: Text(
-        '$playerName 기록',
-        style: TextStyle(
-            fontSize: 24.0.responsiveFontSize(context, minFontSize: 18),
-            color: BRColors.white
+      title: GestureDetector(
+        onTap: () {
+          if (!isMobile) {
+            ref.read(_tapCountProvider.notifier).state++;
+          }
+        },
+        child: Text(
+          '$playerName 기록',
+          style: TextStyle(
+              fontSize: 24.0.responsiveFontSize(context, minFontSize: 18),
+              color: BRColors.white
+          ),
         ),
       ),
+      actions: tapCount > 7 ? [] :[
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.white)),
+          onPressed: () async {
+            final bool? confirm = await _showRemovePlayerDialog(context);
+
+            if (confirm ?? false) {
+              final recordsState = ref.read(dateRecordsViewModelProvider(playerId).notifier);
+              await recordsState.removePlayer(playerId);
+
+              if (context.mounted) {
+                Navigator.pop(context, true);
+              }
+            }
+          },
+          child: Text(
+            '선수 삭제',
+            style: TextStyle(
+                fontSize: 15.0.responsiveFontSize(context, minFontSize: 12),
+                color: Colors.white
+            ),
+          ),
+        ),
+        const SizedBox(width: 50,),
+      ],
+    );
+  }
+
+  Future<bool?> _showRemovePlayerDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text(
+            '정말 삭제하시겠습니까?',
+            style: TextStyle(
+              fontSize: 19.0.responsiveFontSize(context, minFontSize: 15),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                '취소',
+                style: TextStyle(
+                  fontSize: 15.0.responsiveFontSize(context, minFontSize: 12,),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontSize: 15.0.responsiveFontSize(context, minFontSize: 12,),
+                ),),
+            ),
+          ],
+        );
+      },
     );
   }
 

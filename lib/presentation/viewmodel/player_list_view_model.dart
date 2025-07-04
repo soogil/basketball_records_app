@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:iggys_point/data/model/player_model.dart';
-import 'package:iggys_point/data/model/record_model.dart';
 import 'package:iggys_point/data/repository/fire_store_repository_impl.dart';
 import 'package:iggys_point/domain/repository/fire_store_repository.dart';
 import 'package:iggys_point/presentation/view/record_add_page.dart';
@@ -34,6 +32,8 @@ class PlayerListViewModel extends _$PlayerListViewModel {
   Future<PlayerListState> build() async {
     final List<PlayerModel> players = await _fireStoreRepository.getPlayers();
 
+    debugPrint(players.length.toString());
+
     final sorted = sortPlayers(players, PlayerColumn.totalScore, ascending: false);
 
     return PlayerListState(players: sorted);
@@ -41,6 +41,10 @@ class PlayerListViewModel extends _$PlayerListViewModel {
 
   Future uploadPlayers() async {
     await _fireStoreRepository.uploadPlayers();
+  }
+
+  Future addPlayer(String name) async {
+    await _fireStoreRepository.addPlayer(name);
   }
 
   List<PlayerModel> sortPlayers(List<PlayerModel> input, PlayerColumn column, {bool? ascending}) {
