@@ -61,8 +61,10 @@ class PlayerModel with _$PlayerModel {
 }
 
 extension PlayerModelPresentation on PlayerModel {
-  String valueByColumn(PlayerColumn column) {
+  String valueByColumn(PlayerColumn column, {int? index}) {
     switch (column) {
+      case PlayerColumn.rank:
+        return index == null ? '0' : '$index';
       case PlayerColumn.name:
         return name;
       case PlayerColumn.winScore:
@@ -107,6 +109,7 @@ extension PlayerModelPresentation on PlayerModel {
 extension PlayerColumnExtension on PlayerColumn {
   String get label {
     switch (this) {
+      case PlayerColumn.rank: return '순위';
       case PlayerColumn.name: return '이름';
       case PlayerColumn.winScore: return '승점';
       case PlayerColumn.accumulatedScore: return '24년~25년\n누적 합계';
@@ -118,6 +121,7 @@ extension PlayerColumnExtension on PlayerColumn {
 }
 
 enum PlayerColumn {
+  rank(65),
   name(150),
   totalScore(150),
   attendanceScore(150),

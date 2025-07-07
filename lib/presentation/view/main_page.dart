@@ -1,4 +1,3 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iggys_point/core/router/app_pages.dart';
 import 'package:iggys_point/core/theme/br_color.dart';
 import 'package:iggys_point/data/model/player_model.dart';
@@ -258,12 +257,24 @@ class MainPage extends ConsumerWidget {
     return Row(
       children: PlayerColumn.values.map((col) {
         final isSorted = viewModel.sortColumn == col;
+        final isRank = col == PlayerColumn.rank;
+
         return Expanded(
           flex: col.flex,
           child: Container(
             color: BRColors.greenCf,
             height: 50,
-            child: InkWell(
+            child: isRank
+                ? Center(
+              child: Text(
+                col.label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16.0.responsiveFontSize(context, minFontSize: 12),
+                ),
+              ),
+            )
+                : InkWell(
               onTap: () => viewModel.sortPlayersOnTable(col),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -323,7 +334,7 @@ class MainPage extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          player.valueByColumn(col),
+                          player.valueByColumn(col, index: index + 1),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: col == PlayerColumn.accumulatedScore
@@ -353,7 +364,7 @@ extension ResponsiveFontSize on double {
   double responsiveFontSize(BuildContext context, {double? minFontSize}) {
     final width = MediaQuery.of(context).size.width;
     if (width < 600 && minFontSize != null) {
-      return minFontSize.sp;
+      return minFontSize;
     }
     return this;
   }

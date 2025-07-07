@@ -80,6 +80,9 @@ class PlayerListViewModel extends _$PlayerListViewModel {
         case PlayerColumn.winRate:
           compare = a.winRate.compareTo(b.winRate);
           break;
+        case PlayerColumn.rank:
+          compare = 0; // 실제로는 이 케이스에 안옴
+          break;
       }
       return _sortAscending ? compare : -compare;
     });
